@@ -21,9 +21,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
+import static java.util.Arrays.asList;
 
 /**
  * An Java client for Full API  http://www.instapaper.com/api/full
@@ -60,11 +63,11 @@ public class DefaultInstapaperClient {
 				// we received an authorized access token - store it for future runs
 				_token = token;
 				_tokenSecret = tokenSecret;
-
+				// now add a oAuth filter with the token and secret
 				client.addFilter(new OAuthClientFilter(client.getProviders(),
-				new OAuthParameters().consumerKey(PROPERTIES.getProperty(PROPERTY_CONSUMER_KEY)).token(_token),
-				new OAuthSecrets().consumerSecret(PROPERTIES.getProperty(PROPERTY_CONSUMER_SECRET))
-						.tokenSecret(_tokenSecret)));
+						new OAuthParameters().consumerKey(PROPERTIES.getProperty(PROPERTY_CONSUMER_KEY)).token(_token),
+						new OAuthSecrets().consumerSecret(PROPERTIES.getProperty(PROPERTY_CONSUMER_SECRET))
+								.tokenSecret(_tokenSecret)));
 
 				if (log.isDebugEnabled()) {
 					log.debug(String.format("oAuth authorized token=%s, tokenSecret=%s", token, tokenSecret));
@@ -105,7 +108,7 @@ public class DefaultInstapaperClient {
 		final String authorizationTocketAndSecret = authHandler
 				.authorize(UriBuilder.fromUri(INSTAPAPER_BASE_API_URL + "/api/1/oauth/access_token").build());
 		final String[] tokens = StringUtils.split(authorizationTocketAndSecret, "&");
-		final Map<String,String> aouthTokenMap = new HashMap<String, String>();
+		final Map<String, String> aouthTokenMap = new HashMap<String, String>(2);
 		final String[] oauth_token = StringUtils.split(tokens[0], "=");
 		final String[] oauth_token_secret = StringUtils.split(tokens[1], "=");
 		aouthTokenMap.put(oauth_token[0], oauth_token[1]);
@@ -211,7 +214,7 @@ public class DefaultInstapaperClient {
 			postData.add("folder_id", folderId);
 		}
 		if (bookmarkId != null) {
-			postData.add("have", "client_auth");
+			postData.add("have", StringUtils.collectionToDelimitedString(asList(bookmarkId), ","));
 		}
 		final ClientResponse response = resource.type(MediaType.APPLICATION_FORM_URLENCODED)
 				.post(ClientResponse.class, postData);

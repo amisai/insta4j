@@ -68,7 +68,6 @@
 			<version>1.8</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>com.sun.jersey.contribs</groupId>
 			<artifactId>jersey-apache-client</artifactId>
@@ -89,6 +88,23 @@
 			<artifactId>oauth-client</artifactId>
 			<version>1.8</version>
 		</dependency>
+		<!-- Jackson -->
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-lgpl</artifactId>
+			<version>1.8.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-lgpl</artifactId>
+			<version>1.8.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-xc</artifactId>
+			<version>1.8.3</version>
+		</dependency>
+
 	</dependencies>
 	<repositories>
 		<repository>

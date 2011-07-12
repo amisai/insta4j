@@ -37,13 +37,6 @@ public class SimpleInstapaperClient {
 	}
 
 
-	/**
-	 * @return
-	 * @throws UniformInterfaceException If authentication failed
-	 * @throws FailedLoginException	  Is thrown if username or password are invalid.
-	 * @throws RuntimeException		  Is thrown if a code other than 200 is returned with an appropriate error
-	 *                                   description.
-	 */
 	private ClientResponse _authenticate(final String jsonp) throws FailedLoginException {
 
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/authenticate");

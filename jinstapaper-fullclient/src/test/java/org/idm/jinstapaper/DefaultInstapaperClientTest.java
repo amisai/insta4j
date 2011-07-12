@@ -15,7 +15,7 @@ public class DefaultInstapaperClientTest {
 	@Test
 	public void oauthTest() {
 		final DefaultInstapaperClient client = new DefaultInstapaperClient("jinstapaper@gmail.com", "open");
-		final String bookmarkList = client.listBookmarks("2", null, null);
+		final String bookmarkList = client.listBookmarks(null, null, null);
 
 		// [{"type":"meta"},{"type":"user","user_id":1615568,"username":"jinstapaper@gmail.com",
 		// "subscription_is_active":"1"},
