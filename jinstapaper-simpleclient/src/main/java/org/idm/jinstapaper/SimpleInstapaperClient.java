@@ -123,10 +123,18 @@ public class SimpleInstapaperClient {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/add");
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		postData.add("url", url);
-		postData.add("title", title);
-		postData.add("selection", selection);
-		postData.add("redirect", redirect);
-		postData.add("jsonp", jsonp);
+		if (title != null) {
+			postData.add("title", title);
+		}
+		if (selection != null) {
+			postData.add("selection", selection);
+		}
+		if (redirect != null) {
+			postData.add("redirect", redirect);
+		}
+		if (jsonp != null) {
+			postData.add("jsonp", jsonp);
+		}
 
 		final ClientResponse response = resource.type(MediaType.APPLICATION_FORM_URLENCODED)
 				.post(ClientResponse.class, postData);

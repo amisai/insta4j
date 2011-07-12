@@ -1,7 +1,6 @@
 package org.idm.jinstapaper;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import org.junit.Test;
 
 import javax.security.auth.login.FailedLoginException;
@@ -43,14 +42,28 @@ public class SimpleInstapaperClientTest {
 		Assert.assertEquals("instapaperCallback({\"status\":403});", instapaperCallback);
 	}
 
-
 	@Test
 	public void addUrlWithCorrectCredentialsTest() throws Exception {
 		final SimpleInstapaperClient simpleClient = new SimpleInstapaperClient("jinstapaper@gmail.com", "open");
 		final MultivaluedMap<String, String> addResults = simpleClient
 				.add("http://toilettwit.info/", "ToileTTwiT", "Adding Toilettwit");
 		Assert.assertNotNull(addResults);
-		Assert.assertEquals("http://toilettwit.info/",addResults.getFirst("Content-Location"));
+		Assert.assertEquals("http://toilettwit.info/", addResults.getFirst("Content-Location"));
 		Assert.assertEquals("\"ToileTTwiT\"", addResults.getFirst("X-Instapaper-Title"));
+	}
+
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void addBadUrlTest() throws Exception {
+		final SimpleInstapaperClient simpleClient = new SimpleInstapaperClient("jinstapaper@gmail.com", "open");
+		simpleClient.add(null, null, null);
+	}
+
+	@Test
+	public void addUrlWithCorrectCredentialsForJsonTest() throws Exception {
+		final SimpleInstapaperClient simpleClient = new SimpleInstapaperClient("jinstapaper@gmail.com", "open");
+		final String responce = simpleClient
+				.add("http://toilettwit.info/", "ToileTTwiT", "Adding Toilettwit", null, "instapaperCallback");
+		Assert.assertEquals("instapaperCallback({\"status\":201,\"url\":\"http:\\/\\/toilettwit.info\\/\"});",
+				responce);
 	}
 }
