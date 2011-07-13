@@ -42,7 +42,7 @@ package org.idm.jinstapaper.jsonp;
 
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.api.json.JSONJAXBContext;
-import org.idm.jinstapaper.jaxb.InstapaperRecordBean;
+import org.idm.jinstapaper.jaxb.InstaRecordBean;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 import javax.xml.bind.JAXBContext;
@@ -51,7 +51,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author Denis Zontak
+ * Resloves mapping from json <-> JaxB
+ * @author dzontak@gmail.com
  */
 @Provider
 public final class JAXBContextResolver implements ContextResolver<JAXBContext> {
@@ -60,7 +61,7 @@ public final class JAXBContextResolver implements ContextResolver<JAXBContext> {
 
 	private final Set<Class> types;
 
-	private final Class[] cTypes = {InstapaperRecordBean.class};
+	private final Class[] cTypes = {InstaRecordBean.class};
 
 	public JAXBContextResolver() throws Exception {
 		this.types = new HashSet(Arrays.asList(cTypes));

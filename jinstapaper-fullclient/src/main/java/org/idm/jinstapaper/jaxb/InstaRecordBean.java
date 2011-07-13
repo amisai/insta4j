@@ -4,10 +4,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Every jaxb model should extend from this model.
+ * A jaxb annotated bean which can bind any json record retured by Full Instapaper Api.
+ * @author dzontak@gmail.com
  */
-@XmlRootElement(name = "record")
-public class InstapaperRecordBean {
+@XmlRootElement(name = "instarecord")
+public class InstaRecordBean {
 	// Defines the type of record, user, bookmarks, error, etc.
 	@XmlElement
 	public String type;

@@ -1,4 +1,4 @@
-package org.idm.jinstapaper;
+package org.idm.jinstapaper.client;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -7,26 +7,24 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.LoggingFilter;
+import com.sun.jersey.client.impl.CopyOnWriteHashMap;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.sun.jersey.oauth.client.OAuthClientFilter;
 import com.sun.jersey.oauth.signature.OAuthParameters;
 import com.sun.jersey.oauth.signature.OAuthSecrets;
 import org.apache.log4j.Logger;
-import org.idm.jinstapaper.jaxb.InstapaperRecordBean;
+import org.idm.jinstapaper.client.config.DefaultInstaClientConfig;
+import org.idm.jinstapaper.client.config.InstaClientConfig;
+import org.idm.jinstapaper.jaxb.InstaRecordBean;
 import org.idm.jinstapaper.jsonp.JAXBContextResolver;
-import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
-import javax.security.auth.login.FailedLoginException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.URI;
 import java.util.*;
 
+import static com.sun.jersey.api.client.ClientResponse.Status.fromStatusCode;
 import static java.util.Arrays.asList;
 
 /**
@@ -34,155 +32,140 @@ import static java.util.Arrays.asList;
  *
  * @author Denis Zontak
  */
-public class DefaultInstapaperClient {
+public class InstaClient {
 
-
-	private static final Logger log = Logger.getLogger(DefaultInstapaperClient.class);
-
+	private static final Logger log = Logger.getLogger(InstaClient.class);
 	private static final String INSTAPAPER_BASE_API_URL = "https://www.instapaper.com";
 	private Client client;
 	private final ClientConfig config = new DefaultClientConfig();
+	private final InstaClientConfig instaConfig;
+
 	private String _username;
 	private String _password;
 	private static final Properties PROPERTIES = new Properties();
-	private static final String PROPERTIES_FILE_NAME = "jinstapaper.properties";
-	private static final String PROPERTY_CONSUMER_KEY = "oauth.consumer.key";
-	private static final String PROPERTY_CONSUMER_SECRET = "oauth.consumer.secret";
 	private String _token = null;
 	private String _tokenSecret = null;
-
-	public DefaultInstapaperClient(final String username, final String password) {
-		loadSettings();
-		// maps json to Jaxb bean InsapaperRecordBean
-		config.getClasses().add(JAXBContextResolver.class);
-
-		this._username = username;
-		this._password = password;
-		client = Client.create(config);
-		client.addFilter(new LoggingFilter());
-
-		// create a new auth handler
-		final OAuthClientFilter.AuthHandler authHandler = new OAuthClientFilter.AuthHandler() {
-			public void authorized(final String token, final String tokenSecret) {
-				// we received an authorized access token - store it for future runs
-				_token = token;
-				_tokenSecret = tokenSecret;
-				// now add a oAuth filter with the token and secret
-				client.addFilter(new OAuthClientFilter(client.getProviders(),
-						new OAuthParameters().consumerKey(PROPERTIES.getProperty(PROPERTY_CONSUMER_KEY)).token(_token),
-						new OAuthSecrets().consumerSecret(PROPERTIES.getProperty(PROPERTY_CONSUMER_SECRET))
-								.tokenSecret(_tokenSecret)));
-
-				if (log.isDebugEnabled()) {
-					log.debug(String.format("oAuth authorized token=%s, tokenSecret=%s", token, tokenSecret));
-				}
-			}
-
-			public String authorize(final URI authorizationUri) {
-
-				if (log.isDebugEnabled()) {
-					log.debug(String.format("oAuth authorizing url %s", authorizationUri));
-				}
-
-				final WebResource resource = client.resource(authorizationUri);
-				final MultivaluedMap postData = new MultivaluedMapImpl();
-				postData.add("x_auth_username", username);
-				postData.add("x_auth_password", password);
-				postData.add("x_auth_mode", "client_auth");
-				final ClientResponse response;
-				try {
-					response = processResponse(resource.type(MediaType.APPLICATION_FORM_URLENCODED)
-							.post(ClientResponse.class, postData));
-				} catch (FailedLoginException e) {
-					throw new RuntimeException(e.getMessage());
-				}
-				final String entity = response.getEntity(String.class);
-				if (log.isDebugEnabled()) {
-					log.debug(String.format("oAuth authorization response %s", entity));
-				}
-				return entity;
-			}
-		};
-
-		// create a new OAuth client oAuthClientFilter passing the needed info as well as the AuthHandler
-		final OAuthClientFilter oAuthClientFilter = new OAuthClientFilter(client.getProviders(),
-				new OAuthParameters().consumerKey(PROPERTIES.getProperty(PROPERTY_CONSUMER_KEY)),
-				new OAuthSecrets().consumerSecret(PROPERTIES.getProperty(PROPERTY_CONSUMER_SECRET)));
-
-		// Add oAuthClientFilter to the client
-		client.addFilter(oAuthClientFilter);
-
-		//oauth_token=KjSy3vu4pefj5KaMOrsP8gBUjtUki8OuDf7sQERsL9TJ1vQSQY&oauth_token_secret=1CeJdzYXVQYKlOFISRvfAMhg4u4k96x6F5JvgAvNvgNmKcm2TD
-
-		final String authorizationTocketAndSecret = authHandler
-				.authorize(UriBuilder.fromUri(INSTAPAPER_BASE_API_URL + "/api/1/oauth/access_token").build());
+	private Stack<OAuthClientFilter> oAuthClientFilterStack = new Stack<OAuthClientFilter>();
+	private CopyOnWriteHashMap<String, Object> properties;
 
 
-		final String[] tokens = StringUtils.split(authorizationTocketAndSecret, "&");
-		final Map<String, String> aouthTokenMap = new HashMap<String, String>(2);
-		final String[] oauth_token = StringUtils.split(tokens[0], "=");
-		final String[] oauth_token_secret = StringUtils.split(tokens[1], "=");
-		aouthTokenMap.put(oauth_token[0], oauth_token[1]);
-		aouthTokenMap.put(oauth_token_secret[0], oauth_token_secret[1]);
-		authHandler.authorized(aouthTokenMap.get("oauth_token"), aouthTokenMap.get("oauth_token_secret"));
-
+	public Map<String, Object> getProperties() {
+		if (properties == null) {
+			properties = new CopyOnWriteHashMap<String, Object>();
+		}
+		return properties;
 	}
 
-	// Account methods
+	public InstaClient() {
+		this(null, null);
+	}
+
+	public InstaClient(final InstaClientConfig instaClientConfig) {
+		this(null, null, instaClientConfig);
+	}
+
+	public InstaClient(final String username, final String password) {
+		this(username, password, new DefaultInstaClientConfig());
+	}
+
 
 	/**
-	 * Gets an OAuth access token for a user. HTTPS is required: https://www.instapaper.com/api/1/oauth/access_token
+	 * Sets up the Jersy  {@link Client} with {@JAXBContextResolver} and  {@link OAuthClientFilter}
+	 * Gets an OAuth access token for a user via {@link #authorize(String, String)}
+	 *
+	 * @param username		  Instapaper username
+	 * @param password		  Optional Instapaper password
+	 * @param instaClientConfig The client configuration.
+	 * @throws InvalidCredentialsException If username and password are not valid.
 	 */
+	public InstaClient(final String username, final String password, final InstaClientConfig instaClientConfig) {
+		this.username(username);
+		this.password(password);
+		this.instaConfig = instaClientConfig;
+		// maps json to Jaxb bean InstaRecordBean
+		config.getClasses().add(JAXBContextResolver.class);
+		client = Client.create(config);
+		//TODO: make this configurable.
+		client.addFilter(new LoggingFilter());
 
+		// create a new OAuth client oAuthClientFilter passing the needed info
+		final OAuthClientFilter oAuthClientFilter = new OAuthClientFilter(client.getProviders(), new OAuthParameters()
+				.consumerKey((String) instaConfig.getProperty(InstaClientConfig.PROPERTY_CONSUMER_KEY)),
+				new OAuthSecrets()
+						.consumerSecret((String) instaConfig.getProperty(InstaClientConfig.PROPERTY_CONSUMER_SECRET)));
+		// Add oAuthClientFilter to the client
+		client.addFilter(oAuthClientFilter);
+		/**
+		 * 		store a reference to the oAuth filter on the stack so that we can easily remove it when
+		 * 	    we are registering a filter with token and token secret after authorization is successfull.
+		 */
+		oAuthClientFilterStack.push(oAuthClientFilter);
 
-	private static void loadSettings() {
+		/**
+		 * TODO: the initial authorization request should be made by the users of this client, and probably not  during constructions of this object.
+		 */
+		// get the token and tokenSecret for the user.
+		final Map<String, String> aouthTokenMap = this.authorize(username, password);
 
-		FileInputStream st = null;
-		try {
-			st = new FileInputStream(ResourceUtils.getFile("classpath:" + PROPERTIES_FILE_NAME));
-			PROPERTIES.load(st);
-		} catch (IOException e) {
-			// ignore
-		} finally {
-			if (st != null) {
-				try {
-					st.close();
-				} catch (IOException ex) {
-					// ignore
-				}
-			}
-		}
-
-		for (final String name : new String[]{PROPERTY_CONSUMER_KEY, PROPERTY_CONSUMER_SECRET}) {
-			final String value = System.getProperty(name);
-			if (value != null) {
-				PROPERTIES.setProperty(name, value);
-			}
-		}
-
-		if (PROPERTIES.getProperty(PROPERTY_CONSUMER_KEY) == null ||
-				PROPERTIES.getProperty(PROPERTY_CONSUMER_SECRET) == null) {
-			throw new IllegalArgumentException(String.format("No consumerKey and/or consumerSecret found in %s file. " +
-					"You have to provide these as system properties.", PROPERTIES_FILE_NAME));
-		}
 	}
 
-	private static void storeSettings() {
-		FileOutputStream st = null;
-		try {
-			st = new FileOutputStream(PROPERTIES_FILE_NAME);
-			PROPERTIES.store(st, null);
-		} catch (IOException e) {
-			// ignore
-		} finally {
-			try {
-				st.close();
-			} catch (IOException ex) {
-				// ignore
-			}
-		}
+	public InstaClient username(final String username) {
+		this._username = username;
+		return this;
 	}
 
+	public InstaClient password(final String password) {
+		this._password = password;
+		return this;
+	}
+
+	private InstaClient token(final String token) {
+		this._token = token;
+		return this;
+	}
+
+	private InstaClient tokenSecret(final String tokenSecret) {
+		this._tokenSecret = tokenSecret;
+		return this;
+	}
+
+	public static InstaClient create(final String username, final String password) {
+		return new InstaClient(username, password);
+	}
+
+	/**
+	 * A Factory method to create the instace of the client.
+	 * You need to set username and password on the client via the builder methods.
+	 *
+	 * @return An new client instace with username and password set to null.
+	 */
+	public static InstaClient create() {
+		return new InstaClient();
+	}
+
+
+	protected void authorized(final String token, final String tokenSecret) {
+		token(token);
+		tokenSecret(tokenSecret);
+		// remove the auth filter already registered either in the constructor or by this method.
+		client.removeFilter(oAuthClientFilterStack.pop());
+		// now add a oAuth filter with the token and secret
+		final OAuthClientFilter oAuthClientFilter = new OAuthClientFilter(client.getProviders(), new OAuthParameters()
+				.consumerKey((String) instaConfig.getProperty(InstaClientConfig.PROPERTY_CONSUMER_KEY)).token(_token),
+				new OAuthSecrets()
+						.consumerSecret((String) instaConfig.getProperty(InstaClientConfig.PROPERTY_CONSUMER_SECRET))
+						.tokenSecret(_tokenSecret));
+		client.addFilter(oAuthClientFilter);
+		/**
+		 *  push the newly registered filter on the stack so we can track it and unregisterd it before authorizing
+		 *  next time.
+		 */
+		oAuthClientFilterStack.push(oAuthClientFilter);
+
+		if (log.isDebugEnabled()) {
+			log.debug(String.format("oAuth authorized token=%s, tokenSecret=%s", token, tokenSecret));
+		}
+	}
 
 	/**
 	 * Lists the user’s unread bookmarks, and can also synchronize reading positions.
@@ -231,8 +214,7 @@ public class DefaultInstapaperClient {
 	}
 
 
-	public List<InstapaperRecordBean> listBookmarks(final String limit, final String folderId,
-			final String... bookmarkId) {
+	public List<InstaRecordBean> listBookmarks(final String limit, final String folderId, final String... bookmarkId) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/list");
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		if (limit != null) {
@@ -244,11 +226,11 @@ public class DefaultInstapaperClient {
 		if (bookmarkId != null) {
 			postData.add("have", StringUtils.collectionToDelimitedString(asList(bookmarkId), ","));
 		}
-		final List<InstapaperRecordBean> instapaperRecordBeans = resource.type(MediaType.APPLICATION_FORM_URLENCODED)
-				.accept(MediaType.APPLICATION_JSON).post(new GenericType<List<InstapaperRecordBean>>() {
+		final List<InstaRecordBean> instaRecordBeans = resource.type(MediaType.APPLICATION_FORM_URLENCODED)
+				.accept(MediaType.APPLICATION_JSON).post(new GenericType<List<InstaRecordBean>>() {
 				}, postData);
 
-		return instapaperRecordBeans;
+		return instaRecordBeans;
 
 	}
 
@@ -259,25 +241,30 @@ public class DefaultInstapaperClient {
 	 *
 	 * @return A record representing the currently logged in user or an error record.
 	 */
-	public InstapaperRecordBean verifyCredentials() {
+	public InstaRecordBean verifyCredentials() {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/account/verify_credentials");
-		final List<InstapaperRecordBean> instapaperRecordBeans = resource.accept(MediaType.APPLICATION_JSON)
-				.post(new GenericType<List<InstapaperRecordBean>>() {
+		final List<InstaRecordBean> instaRecordBeans = resource.accept(MediaType.APPLICATION_JSON)
+				.post(new GenericType<List<InstaRecordBean>>() {
 				});
 
-		return instapaperRecordBeans.iterator().hasNext() ? instapaperRecordBeans.iterator().next() : null;
+		return instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null;
 	}
 
 
 	/**
 	 * Gets an OAuth access token for a user.
+	 * This method also stored the token and secret internally so that it can be passed on every
+	 * subsiquent request in Authentication header.
 	 *
 	 * @param username An instapaper user name
 	 * @param password An optional password.
 	 * @return A Map containing key 'oauth_token' with oauth user token
 	 *         and a value of token secret under the key 'oauth_token_secret'
+	 * @throws InvalidCredentialsException A RuntimeException is thrown if the user authentication failed
+	 * @throws RuntimeException			Is thrown authorization with oAuth failed, the message will be what Instapaper Full
+	 *                                     api returns in case of an error.
 	 */
-	public Map<String, String> authorize(final String username, final String password) throws FailedLoginException {
+	public Map<String, String> authorize(final String username, final String password) {
 		final WebResource resource = client
 				.resource(UriBuilder.fromUri(INSTAPAPER_BASE_API_URL + "/api/1/oauth/access_token").build());
 		final MultivaluedMap postData = new MultivaluedMapImpl();
@@ -288,30 +275,34 @@ public class DefaultInstapaperClient {
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).post(ClientResponse.class, postData));
 
 		final String entity = response.getEntity(String.class);
-		final String[] tokens = StringUtils.split(entity, "&");
+		final String[] tokens = entity.split("&");
 		final Map<String, String> aouthTokenMap = new HashMap<String, String>(2);
 		final String[] oauth_token = StringUtils.split(tokens[0], "=");
 		final String[] oauth_token_secret = StringUtils.split(tokens[1], "=");
 		aouthTokenMap.put(oauth_token[0], oauth_token[1]);
 		aouthTokenMap.put(oauth_token_secret[0], oauth_token_secret[1]);
+
+		// signale the client that oAuth token and secret had been recived.
+		authorized(aouthTokenMap.get("oauth_token"), aouthTokenMap.get("oauth_token_secret"));
+
 		return aouthTokenMap;
 	}
 
-	//TOOD: don't like checked exceptions, create a runtime exception FailedLoginException but we need a place to put it
-	// to share among 2 modules, I guess its time to create core module.
-	private ClientResponse processResponse(final ClientResponse response) throws FailedLoginException {
-		switch (response.getStatus()) {
-			case 200:
+
+	private ClientResponse processResponse(final ClientResponse response) {
+		switch (fromStatusCode(response.getStatus())) {
+			case OK:
 				return response;
-			case 201:
+			case CREATED:
 				return response;
-			case 400: // Bad request or exceeded the rate limit. Probably missing a required parameter, such as url.
+			case BAD_REQUEST: // Bad request or exceeded the rate limit. Probably missing a required parameter,
+				// such as url.
 				throw new IllegalArgumentException(response.getEntity(String.class));
-			case 403: // Invalid username or password.
-				throw new FailedLoginException(response.getEntity(String.class));
-			case 401: // Invalid xAuth credentials..
-				throw new FailedLoginException(response.getEntity(String.class));
-			case 500: // The service encountered an error. Please try again later.
+			case FORBIDDEN: // Invalid username or password.
+				throw new InvalidCredentialsException(response.getEntity(String.class));
+			case UNAUTHORIZED: // Invalid xAuth credentials..
+				throw new InvalidCredentialsException(response.getEntity(String.class));
+			case INTERNAL_SERVER_ERROR: // The service encountered an error. Please try again later.
 				throw new RuntimeException(response.getEntity(String.class));
 			default:
 				throw new RuntimeException(

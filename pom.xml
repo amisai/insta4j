@@ -49,5 +49,6 @@
 	<modules>
 		<module>jinstapaper-fullclient</module>
 		<module>jinstapaper-simpleclient</module>
+		<module>jinstapaper-core</module>
 	</modules>
 </project>
