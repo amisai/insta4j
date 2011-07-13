@@ -2,6 +2,7 @@ package org.idm.jinstapaper;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
@@ -11,9 +12,12 @@ import com.sun.jersey.oauth.client.OAuthClientFilter;
 import com.sun.jersey.oauth.signature.OAuthParameters;
 import com.sun.jersey.oauth.signature.OAuthSecrets;
 import org.apache.log4j.Logger;
+import org.idm.jinstapaper.jaxb.InstapaperRecordBean;
+import org.idm.jinstapaper.jsonp.JAXBContextResolver;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
+import javax.security.auth.login.FailedLoginException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
@@ -21,10 +25,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static java.util.Arrays.asList;
 
@@ -52,6 +53,9 @@ public class DefaultInstapaperClient {
 
 	public DefaultInstapaperClient(final String username, final String password) {
 		loadSettings();
+		// maps json to Jaxb bean InsapaperRecordBean
+		config.getClasses().add(JAXBContextResolver.class);
+
 		this._username = username;
 		this._password = password;
 		client = Client.create(config);
@@ -85,8 +89,13 @@ public class DefaultInstapaperClient {
 				postData.add("x_auth_username", username);
 				postData.add("x_auth_password", password);
 				postData.add("x_auth_mode", "client_auth");
-				final ClientResponse response = resource.type(MediaType.APPLICATION_FORM_URLENCODED)
-						.post(ClientResponse.class, postData);
+				final ClientResponse response;
+				try {
+					response = processResponse(resource.type(MediaType.APPLICATION_FORM_URLENCODED)
+							.post(ClientResponse.class, postData));
+				} catch (FailedLoginException e) {
+					throw new RuntimeException(e.getMessage());
+				}
 				final String entity = response.getEntity(String.class);
 				if (log.isDebugEnabled()) {
 					log.debug(String.format("oAuth authorization response %s", entity));
@@ -107,6 +116,8 @@ public class DefaultInstapaperClient {
 
 		final String authorizationTocketAndSecret = authHandler
 				.authorize(UriBuilder.fromUri(INSTAPAPER_BASE_API_URL + "/api/1/oauth/access_token").build());
+
+
 		final String[] tokens = StringUtils.split(authorizationTocketAndSecret, "&");
 		final Map<String, String> aouthTokenMap = new HashMap<String, String>(2);
 		final String[] oauth_token = StringUtils.split(tokens[0], "=");
@@ -115,9 +126,7 @@ public class DefaultInstapaperClient {
 		aouthTokenMap.put(oauth_token_secret[0], oauth_token_secret[1]);
 		authHandler.authorized(aouthTokenMap.get("oauth_token"), aouthTokenMap.get("oauth_token_secret"));
 
-
 	}
-
 
 	// Account methods
 
@@ -204,7 +213,7 @@ public class DefaultInstapaperClient {
 	 *                   </p>
 	 * @return One meta object, the current user, and between 0 and limit bookmarks.
 	 */
-	public String listBookmarks(final String limit, final String folderId, final String... bookmarkId) {
+	public String listBookmarksJson(final String limit, final String folderId, final String... bookmarkId) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/list");
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		if (limit != null) {
@@ -217,9 +226,95 @@ public class DefaultInstapaperClient {
 			postData.add("have", StringUtils.collectionToDelimitedString(asList(bookmarkId), ","));
 		}
 		final ClientResponse response = resource.type(MediaType.APPLICATION_FORM_URLENCODED)
-				.post(ClientResponse.class, postData);
+				.accept(MediaType.APPLICATION_JSON).post(ClientResponse.class, postData);
 		return response.getEntity(String.class);
+	}
 
 
+	public List<InstapaperRecordBean> listBookmarks(final String limit, final String folderId,
+			final String... bookmarkId) {
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/list");
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		if (limit != null) {
+			postData.add("limit", limit);
+		}
+		if (folderId != null) {
+			postData.add("folder_id", folderId);
+		}
+		if (bookmarkId != null) {
+			postData.add("have", StringUtils.collectionToDelimitedString(asList(bookmarkId), ","));
+		}
+		final List<InstapaperRecordBean> instapaperRecordBeans = resource.type(MediaType.APPLICATION_FORM_URLENCODED)
+				.accept(MediaType.APPLICATION_JSON).post(new GenericType<List<InstapaperRecordBean>>() {
+				}, postData);
+
+		return instapaperRecordBeans;
+
+	}
+
+	/**
+	 * Returns the currently logged in user.
+	 * Output on success: A user object, e.g.
+	 * [{"type":"user","user_id":54321,"username":"TestUserOMGLOL"}]
+	 *
+	 * @return A record representing the currently logged in user or an error record.
+	 */
+	public InstapaperRecordBean verifyCredentials() {
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/account/verify_credentials");
+		final List<InstapaperRecordBean> instapaperRecordBeans = resource.accept(MediaType.APPLICATION_JSON)
+				.post(new GenericType<List<InstapaperRecordBean>>() {
+				});
+
+		return instapaperRecordBeans.iterator().hasNext() ? instapaperRecordBeans.iterator().next() : null;
+	}
+
+
+	/**
+	 * Gets an OAuth access token for a user.
+	 *
+	 * @param username An instapaper user name
+	 * @param password An optional password.
+	 * @return A Map containing key 'oauth_token' with oauth user token
+	 *         and a value of token secret under the key 'oauth_token_secret'
+	 */
+	public Map<String, String> authorize(final String username, final String password) throws FailedLoginException {
+		final WebResource resource = client
+				.resource(UriBuilder.fromUri(INSTAPAPER_BASE_API_URL + "/api/1/oauth/access_token").build());
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		postData.add("x_auth_username", username);
+		postData.add("x_auth_password", password);
+		postData.add("x_auth_mode", "client_auth");
+		final ClientResponse response = processResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).post(ClientResponse.class, postData));
+		final String entity = response.getEntity(String.class);
+		final String[] tokens = StringUtils.split(entity, "&");
+		final Map<String, String> aouthTokenMap = new HashMap<String, String>(2);
+		final String[] oauth_token = StringUtils.split(tokens[0], "=");
+		final String[] oauth_token_secret = StringUtils.split(tokens[1], "=");
+		aouthTokenMap.put(oauth_token[0], oauth_token[1]);
+		aouthTokenMap.put(oauth_token_secret[0], oauth_token_secret[1]);
+		return aouthTokenMap;
+	}
+
+	//TOOD: don't like checked exceptions, create a runtime exception FailedLoginException but we need a place to put it
+	// to share among 2 modules, I guess its time to create core module.
+	private ClientResponse processResponse(final ClientResponse response) throws FailedLoginException {
+		switch (response.getStatus()) {
+			case 200:
+				return response;
+			case 201:
+				return response;
+			case 400: // Bad request or exceeded the rate limit. Probably missing a required parameter, such as url.
+				throw new IllegalArgumentException(response.getEntity(String.class));
+			case 403: // Invalid username or password.
+				throw new FailedLoginException(response.getEntity(String.class));
+			case 401: // Invalid xAuth credentials..
+				throw new FailedLoginException(response.getEntity(String.class));
+			case 500: // The service encountered an error. Please try again later.
+				throw new RuntimeException(response.getEntity(String.class));
+			default:
+				throw new RuntimeException(
+						String.format("Instapaper api returned an unknown code '%s'", response.getStatus()));
+		}
 	}
 }

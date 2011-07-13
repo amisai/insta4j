@@ -2,23 +2,21 @@ package org.idm.jinstapaper;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import org.springframework.util.StringUtils;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
 
 /**
- * A java client for Simple Instapaper api
+ * A java client for Simple Instapaper api @see http://www.instapaper.com/api/simple
+ *
  */
 public class SimpleInstapaperClient {
 	private static final String INSTAPAPER_BASE_API_URL = "https://www.instapaper.com/api";
