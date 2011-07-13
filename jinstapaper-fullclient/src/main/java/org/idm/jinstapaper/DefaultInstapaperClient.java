@@ -286,6 +286,7 @@ public class DefaultInstapaperClient {
 		postData.add("x_auth_mode", "client_auth");
 		final ClientResponse response = processResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).post(ClientResponse.class, postData));
+
 		final String entity = response.getEntity(String.class);
 		final String[] tokens = StringUtils.split(entity, "&");
 		final Map<String, String> aouthTokenMap = new HashMap<String, String>(2);
