@@ -47,8 +47,9 @@
 		</repository>
 	</repositories>
 	<modules>
+		<module>jinstapaper-core</module>
 		<module>jinstapaper-fullclient</module>
 		<module>jinstapaper-simpleclient</module>
-		<module>jinstapaper-core</module>
+
 	</modules>
 </project>
