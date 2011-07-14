@@ -2,7 +2,7 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<artifactId>insta4j</artifactId>
-		<groupId>org.idm.insta4j</groupId>
+		<groupId>org.ooloo.insta4j</groupId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -68,7 +68,6 @@
 			<version>1.8</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>com.sun.jersey.contribs</groupId>
 			<artifactId>jersey-apache-client</artifactId>
@@ -90,7 +89,7 @@
 			<version>1.8</version>
 		</dependency>
 		<dependency>
-			<groupId>org.idm.insta4j</groupId>
+			<groupId>org.ooloo.insta4j</groupId>
 			<artifactId>insta4j-core</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>

@@ -1,51 +1,50 @@
-package org.idm.jinstapaper;
+package org.ooloo.insta4j;
 
 import junit.framework.Assert;
-import org.idm.insta4j.SimpleInstapaperClient;
 import org.junit.Test;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.ws.rs.core.MultivaluedMap;
 
 
-public class SimpleInstapaperClientTest {
+public class SimpleInstaClientTest {
 
 	@Test
 	public void authenticateValidAccountSecuredWithPasswordTest() throws Exception {
-		final SimpleInstapaperClient simpleClient = new SimpleInstapaperClient("jinstapaper@gmail.com", "open");
+		final SimpleInstaClient simpleClient = new SimpleInstaClient("jinstapaper@gmail.com", "open");
 		Assert.assertTrue(simpleClient.authenticate());
 	}
 
 	@Test
 	public void authenticateValidAccountSecuredWithPasswordWithJsonTest() throws Exception {
-		final SimpleInstapaperClient simpleClient = new SimpleInstapaperClient("jinstapaper@gmail.com", "open");
+		final SimpleInstaClient simpleClient = new SimpleInstaClient("jinstapaper@gmail.com", "open");
 		final String instapaperCallback = simpleClient.authenticate("instapaperCallback");
 		Assert.assertEquals("instapaperCallback({\"status\":200});", instapaperCallback);
 	}
 
 	@Test(expected = FailedLoginException.class)
 	public void authenticateWithInvalidPasswordTest() throws Exception {
-		final SimpleInstapaperClient simpleClient = new SimpleInstapaperClient("jinstapaper@gmail.com", "ops");
+		final SimpleInstaClient simpleClient = new SimpleInstaClient("jinstapaper@gmail.com", "ops");
 		Assert.assertTrue(simpleClient.authenticate());
 	}
 
 	@Test
 	public void authenticateWithInvalidPasswordWithJsonpTest() throws Exception {
-		final SimpleInstapaperClient simpleClient = new SimpleInstapaperClient("jinstapaper@gmail.com", "ops");
+		final SimpleInstaClient simpleClient = new SimpleInstaClient("jinstapaper@gmail.com", "ops");
 		final String instapaperCallback = simpleClient.authenticate("instapaperCallback");
 		Assert.assertEquals("instapaperCallback({\"status\":403});", instapaperCallback);
 	}
 
 	@Test
 	public void authenticateWithInvalidUsernameWithJsonpTest() throws Exception {
-		final SimpleInstapaperClient simpleClient = new SimpleInstapaperClient(null, null);
+		final SimpleInstaClient simpleClient = new SimpleInstaClient(null, null);
 		final String instapaperCallback = simpleClient.authenticate("instapaperCallback");
 		Assert.assertEquals("instapaperCallback({\"status\":403});", instapaperCallback);
 	}
 
 	@Test
 	public void addUrlWithCorrectCredentialsTest() throws Exception {
-		final SimpleInstapaperClient simpleClient = new SimpleInstapaperClient("jinstapaper@gmail.com", "open");
+		final SimpleInstaClient simpleClient = new SimpleInstaClient("jinstapaper@gmail.com", "open");
 		final MultivaluedMap<String, String> addResults = simpleClient
 				.add("http://toilettwit.info/", "ToileTTwiT", "Adding Toilettwit");
 		Assert.assertNotNull(addResults);
@@ -55,13 +54,13 @@ public class SimpleInstapaperClientTest {
 
 	@Test(expected = java.lang.IllegalArgumentException.class)
 	public void addBadUrlTest() throws Exception {
-		final SimpleInstapaperClient simpleClient = new SimpleInstapaperClient("jinstapaper@gmail.com", "open");
+		final SimpleInstaClient simpleClient = new SimpleInstaClient("jinstapaper@gmail.com", "open");
 		simpleClient.add(null, null, null);
 	}
 
 	@Test
 	public void addUrlWithCorrectCredentialsForJsonTest() throws Exception {
-		final SimpleInstapaperClient simpleClient = new SimpleInstapaperClient("jinstapaper@gmail.com", "open");
+		final SimpleInstaClient simpleClient = new SimpleInstaClient("jinstapaper@gmail.com", "open");
 		final String responce = simpleClient
 				.add("http://toilettwit.info/", "ToileTTwiT", "Adding Toilettwit", null, "instapaperCallback");
 		Assert.assertEquals("instapaperCallback({\"status\":201,\"url\":\"http:\\/\\/toilettwit.info\\/\"});",
