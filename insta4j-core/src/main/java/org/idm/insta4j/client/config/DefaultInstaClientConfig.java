@@ -1,4 +1,4 @@
-package org.idm.jinstapaper.client.config;
+package org.idm.insta4j.client.config;
 
 import org.springframework.util.ResourceUtils;
 
@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 public class DefaultInstaClientConfig implements InstaClientConfig {
 

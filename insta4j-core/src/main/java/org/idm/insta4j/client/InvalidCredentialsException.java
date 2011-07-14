@@ -1,4 +1,4 @@
-package org.idm.jinstapaper.client;
+package org.idm.insta4j.client;
 
 
 /**

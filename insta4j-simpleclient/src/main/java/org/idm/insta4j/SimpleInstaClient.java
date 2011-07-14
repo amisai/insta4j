@@ -1,4 +1,4 @@
-package org.idm.jinstapaper;
+package org.idm.insta4j;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;

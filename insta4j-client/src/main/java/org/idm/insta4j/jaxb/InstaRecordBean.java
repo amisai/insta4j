@@ -1,4 +1,4 @@
-package org.idm.jinstapaper.jaxb;
+package org.idm.insta4j.jaxb;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

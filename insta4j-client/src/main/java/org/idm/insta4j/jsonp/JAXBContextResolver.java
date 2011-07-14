@@ -38,11 +38,12 @@
  * holder.
  */
 
-package org.idm.jinstapaper.jsonp;
+package org.idm.insta4j.jsonp;
 
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.api.json.JSONJAXBContext;
-import org.idm.jinstapaper.jaxb.InstaRecordBean;
+import org.idm.insta4j.jaxb.InstaRecordBean;
+import org.idm.insta4j.jaxb.InstaRecordBean;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 import javax.xml.bind.JAXBContext;

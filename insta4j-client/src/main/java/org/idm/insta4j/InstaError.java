@@ -1,4 +1,4 @@
-package org.idm.jinstapaper;
+package org.idm.insta4j;
 
 public class InstaError {
 

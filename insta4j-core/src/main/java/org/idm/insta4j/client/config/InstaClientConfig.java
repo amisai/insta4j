@@ -1,4 +1,4 @@
-package org.idm.jinstapaper.client.config;
+package org.idm.insta4j.client.config;
 
 import com.sun.jersey.core.util.FeaturesAndProperties;
 

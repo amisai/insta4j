@@ -1,4 +1,4 @@
-package org.idm.jinstapaper.core.util;
+package org.idm.insta4j.core.util;
 
 import java.util.Map;
 
