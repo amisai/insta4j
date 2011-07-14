@@ -2,10 +2,10 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.idm.jinstapaper</groupId>
-	<artifactId>jinstapaper</artifactId>
+	<artifactId>insta4j</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>jinstapaper</name>
+	<name>insta4j</name>
 	<description>A Java library for the Instapaper Simple and Full API</description>
 	<url>http://jinstapaper.org/</url>
 	<licenses>
@@ -47,9 +47,9 @@
 		</repository>
 	</repositories>
 	<modules>
-		<module>jinstapaper-core</module>
-		<module>jinstapaper-fullclient</module>
-		<module>jinstapaper-simpleclient</module>
+		<module>insta4j-core</module>
+		<module>insta4j-client</module>
+		<module>insta4j-simpleclient</module>
 
 	</modules>
 </project>
