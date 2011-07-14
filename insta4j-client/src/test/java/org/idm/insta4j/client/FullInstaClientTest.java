@@ -1,4 +1,4 @@
-package org.idm.jinstapaper;
+package org.idm.insta4j.client;
 
 import junit.framework.Assert;
 import org.idm.insta4j.client.FullInstaClient;
@@ -10,7 +10,7 @@ import javax.security.auth.login.FailedLoginException;
 import java.util.List;
 import java.util.Map;
 
-public class InstaClientTest {
+public class FullInstaClientTest {
 
 	@Test
 	public void listBookmarksJsonTest() {

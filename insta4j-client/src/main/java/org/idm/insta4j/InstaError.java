@@ -2,7 +2,6 @@ package org.idm.insta4j;
 
 public class InstaError {
 
-
 	/**
 	 * Base interface for statuses used in responses.
 	 */
@@ -29,7 +28,7 @@ public class InstaError {
 		public String getReasonPhrase();
 	}
 
-
+	//TODO: give enums a more meanenful names.
 	public enum Error implements ErrorType {
 		/**
 		 * http errors
@@ -38,15 +37,12 @@ public class InstaError {
 		_403(403, "Invalid username or password"),
 		_401(401, "Invalid xAuth credentials"),
 		_500(500, "The service encountered an error. Please try again later"),
-
 		/**
 		 * GeneralError
 		 */
-
 		_1040(1040, "Rate-limit exceeded"),
 		_1041(1041, "Subscription account required"),
 		_1042(1042, "Application is suspended"),
-
 		/**
 		 * BookmarkError
 		 */
@@ -100,19 +96,18 @@ public class InstaError {
 		Error(final int statusCode, final String reasonPhrase) {
 			this.code = statusCode;
 			this.reason = reasonPhrase;
-			switch ((int) Math.ceil(code / 100)) {
-				case 5:
-					this.family = Family.HTTP_ERROR;
-					break;
-				case 10:
-					this.family = Family.GENERAL_ERROR;
-					break;
-				case 12:
-					this.family = Family.BOOKMARK_ERROR;
-					break;
-				default:
-					this.family = Family.OTHER;
-					break;
+			if (statusCode >= 200 || statusCode <= 201) {
+				this.family = Family.SUCCESSFUL;
+			} else if (statusCode >= 400 || statusCode <= 500) {
+				this.family = Family.HTTP_ERROR;
+			} else if (statusCode >= 1040 || statusCode <= 1045) {
+				this.family = Family.GENERAL_ERROR;
+			} else if (statusCode >= 1220 || statusCode <= 1246) {
+				this.family = Family.BOOKMARK_ERROR;
+			} else if (statusCode >= 1250 || statusCode <= 1252) {
+				this.family = Family.FOLDER_ERROR;
+			} else {
+				this.family = Family.OTHER;
 			}
 		}
 
@@ -159,7 +154,7 @@ public class InstaError {
 		 * @param errorCode the numerical error code
 		 * @return the matching Error or null is no matching Error is defined
 		 */
-		public static Error fromStatusCode(final int errorCode) {
+		public static Error fromErrorCode(final int errorCode) {
 			for (final Error error : Error.values()) {
 				if (error.code == errorCode) {
 					return error;
