@@ -259,15 +259,15 @@ public class FullInstaClient {
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).post(ClientResponse.class, postData));
 
 		final String entity = response.getEntity(String.class);
-
-
 		final String[] tokens = entity.split("&");
 		final Map<String, String> aouthTokenMap = new HashMap<String, String>(2);
 		final String[] oauth_token = tokens[0].split("=");
 		final String[] oauth_token_secret = tokens[1].split("=");
 		aouthTokenMap.put(oauth_token[0], oauth_token[1]);
 		aouthTokenMap.put(oauth_token_secret[0], oauth_token_secret[1]);
-
+		// store user info locally
+		username(username);
+		password(password);
 		// signale the client that oAuth token and secret had been recived.
 		authorized(aouthTokenMap.get("oauth_token"), aouthTokenMap.get("oauth_token_secret"));
 
