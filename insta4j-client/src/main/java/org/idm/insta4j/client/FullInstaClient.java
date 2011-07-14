@@ -13,6 +13,7 @@ import com.sun.jersey.oauth.client.OAuthClientFilter;
 import com.sun.jersey.oauth.signature.OAuthParameters;
 import com.sun.jersey.oauth.signature.OAuthSecrets;
 import org.apache.log4j.Logger;
+import org.idm.insta4j.InstaError;
 import org.idm.insta4j.client.config.DefaultInstaClientConfig;
 import org.idm.insta4j.client.config.InstaClientConfig;
 import org.idm.insta4j.jaxb.InstaRecordBean;
@@ -22,9 +23,11 @@ import org.springframework.util.StringUtils;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-import static com.sun.jersey.api.client.ClientResponse.Status.fromStatusCode;
+import static org.idm.insta4j.InstaError.Error.fromErrorCode;
 import static java.util.Arrays.asList;
 
 /**
@@ -42,7 +45,6 @@ public class FullInstaClient {
 
 	private String _username;
 	private String _password;
-	private static final Properties PROPERTIES = new Properties();
 	private String _token = null;
 	private String _tokenSecret = null;
 	private Stack<OAuthClientFilter> oAuthClientFilterStack = new Stack<OAuthClientFilter>();
@@ -196,24 +198,6 @@ public class FullInstaClient {
 	 *                   </p>
 	 * @return One meta object, the current user, and between 0 and limit bookmarks.
 	 */
-	public String listBookmarksJson(final String limit, final String folderId, final String... bookmarkId) {
-		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/list");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
-		if (limit != null) {
-			postData.add("limit", limit);
-		}
-		if (folderId != null) {
-			postData.add("folder_id", folderId);
-		}
-		if (bookmarkId != null) {
-			postData.add("have", StringUtils.collectionToDelimitedString(asList(bookmarkId), ","));
-		}
-		final ClientResponse response = resource.type(MediaType.APPLICATION_FORM_URLENCODED)
-				.accept(MediaType.APPLICATION_JSON).post(ClientResponse.class, postData);
-		return response.getEntity(String.class);
-	}
-
-
 	public List<InstaRecordBean> listBookmarks(final String limit, final String folderId, final String... bookmarkId) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/list");
 		final MultivaluedMap postData = new MultivaluedMapImpl();
@@ -275,10 +259,12 @@ public class FullInstaClient {
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).post(ClientResponse.class, postData));
 
 		final String entity = response.getEntity(String.class);
+
+
 		final String[] tokens = entity.split("&");
 		final Map<String, String> aouthTokenMap = new HashMap<String, String>(2);
-		final String[] oauth_token = StringUtils.split(tokens[0], "=");
-		final String[] oauth_token_secret = StringUtils.split(tokens[1], "=");
+		final String[] oauth_token = tokens[0].split("=");
+		final String[] oauth_token_secret = tokens[1].split("=");
 		aouthTokenMap.put(oauth_token[0], oauth_token[1]);
 		aouthTokenMap.put(oauth_token_secret[0], oauth_token_secret[1]);
 
@@ -290,23 +276,25 @@ public class FullInstaClient {
 
 
 	private ClientResponse processResponse(final ClientResponse response) {
-		switch (fromStatusCode(response.getStatus())) {
-			case OK:
+		final InstaError.Error error = fromErrorCode(response.getStatus());
+		if (error != null) {
+			final Class<? extends RuntimeException> exceptionClass = error.getExceptionClass();
+			if (exceptionClass == null) {
 				return response;
-			case CREATED:
-				return response;
-			case BAD_REQUEST: // Bad request or exceeded the rate limit. Probably missing a required parameter,
-				// such as url.
-				throw new IllegalArgumentException(response.getEntity(String.class));
-			case FORBIDDEN: // Invalid username or password.
-				throw new InvalidCredentialsException(response.getEntity(String.class));
-			case UNAUTHORIZED: // Invalid xAuth credentials..
-				throw new InvalidCredentialsException(response.getEntity(String.class));
-			case INTERNAL_SERVER_ERROR: // The service encountered an error. Please try again later.
-				throw new RuntimeException(response.getEntity(String.class));
-			default:
-				throw new RuntimeException(
-						String.format("Instapaper api returned an unknown code '%s'", response.getStatus()));
+			} else {
+				// raise an exception
+				try {
+					final Constructor<? extends RuntimeException> constructor = exceptionClass
+							.getConstructor(String.class);
+					throw constructor.newInstance(error.getReasonPhrase());
+
+				} catch (Exception e) {
+					throw new RuntimeException(error.getReasonPhrase());
+				}
+			}
+		} else {
+			throw new RuntimeException(String.format("Unknown error code %s [%s]", response.getStatus(),
+					response.getEntity(String.class)));
 		}
 	}
 }

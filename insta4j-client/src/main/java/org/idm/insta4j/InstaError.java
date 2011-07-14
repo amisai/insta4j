@@ -1,5 +1,7 @@
 package org.idm.insta4j;
 
+import org.idm.insta4j.client.InvalidCredentialsException;
+
 public class InstaError {
 
 	/**
@@ -28,57 +30,61 @@ public class InstaError {
 		public String getReasonPhrase();
 	}
 
-	//TODO: give enums a more meanenful names.
+	//TODO: give enums a more meanenful names?
 	public enum Error implements ErrorType {
 		/**
-		 * http errors
+		 * http codes
 		 */
-		_400(400, "Bad request or exceeded the rate limit. Probably missing a required parameter, such as url"),
-		_403(403, "Invalid username or password"),
-		_401(401, "Invalid xAuth credentials"),
-		_500(500, "The service encountered an error. Please try again later"),
+		_200(200, "OK", null),
+		_201(201, "Created", null),
+		_400(400, "Bad request or exceeded the rate limit. Probably missing a required parameter, such as url",
+				RuntimeException.class),
+		_403(403, "Invalid username or password", InvalidCredentialsException.class),
+		_401(401, "Invalid xAuth credentials", InvalidCredentialsException.class),
+		_500(500, "The service encountered an error. Please try again later", RuntimeException.class),
 		/**
 		 * GeneralError
 		 */
-		_1040(1040, "Rate-limit exceeded"),
-		_1041(1041, "Subscription account required"),
-		_1042(1042, "Application is suspended"),
+		_1040(1040, "Rate-limit exceeded", RuntimeException.class),
+		_1041(1041, "Subscription account required", RuntimeException.class),
+		_1042(1042, "Application is suspended", RuntimeException.class),
 		/**
 		 * BookmarkError
 		 */
 		// 1220: Domain requires full content to be supplied
-		_1220(1220, "Domain requires full content to be supplied"),
+		_1220(1220, "Domain requires full content to be supplied", RuntimeException.class),
 		// 1221: Domain has opted out of Instapaper compatibility
-		_1221(1221, "Domain has opted out of Instapaper compatibility"),
+		_1221(1221, "Domain has opted out of Instapaper compatibility", RuntimeException.class),
 		// 1240: Invalid URL specified
-		_1240(1240, "Invalid URL specified"),
+		_1240(1240, "Invalid URL specified", RuntimeException.class),
 		// 1241: Invalid or missing bookmark_id
-		_1241(1241, "Invalid or missing bookmark_id"),
+		_1241(1241, "Invalid or missing bookmark_id", RuntimeException.class),
 		// 1242: Invalid or missing folder_id
-		_1242(1242, "Invalid or missing folder_id"),
+		_1242(1242, "Invalid or missing folder_id", RuntimeException.class),
 		// 1243: Invalid or missing progress
-		_1243(1243, "Invalid or missing progress"),
+		_1243(1243, "Invalid or missing progress", RuntimeException.class),
 		// 1244: Invalid or missing progress_timestamp
-		_1244(1244, "Invalid or missing progress_timestamp"),
+		_1244(1244, "Invalid or missing progress_timestamp", RuntimeException.class),
 		// 1245: Private bookmarks require supplied content
-		_1245(1245, "Private bookmarks require supplied content"),
+		_1245(1245, "Private bookmarks require supplied content", RuntimeException.class),
 		// 1246: Unexpected error when saving bookmark
-		_1246(1246, "Unexpected error when saving bookmark"),
+		_1246(1246, "Unexpected error when saving bookmark", RuntimeException.class),
 
 		/**
 		 * FolderError
 		 */
 		//1250: Invalid or missing title
-		_1250(1250, "Invalid or missing title"),
+		_1250(1250, "Invalid or missing title", RuntimeException.class),
 		//1251: User already has a folder with this title
-		_1251(1251, "User already has a folder with this title"),
+		_1251(1251, "User already has a folder with this title", RuntimeException.class),
 		//1252: Cannot add bookmarks to this folder
-		_1252(1252, "Cannot add bookmarks to this folder");
+		_1252(1252, "Cannot add bookmarks to this folder", RuntimeException.class);
 
 
 		private final int code;
 		private final String reason;
 		private Family family;
+		private final Class<? extends RuntimeException> exceptionClass;
 
 		/**
 		 * An enumeration representing the class of status code. Family is used
@@ -93,9 +99,11 @@ public class InstaError {
 			OTHER
 		}
 
-		Error(final int statusCode, final String reasonPhrase) {
+		Error(final int statusCode, final String reasonPhrase, final Class<? extends RuntimeException> exceptionClass) {
 			this.code = statusCode;
 			this.reason = reasonPhrase;
+			this.exceptionClass = exceptionClass;
+
 			if (statusCode >= 200 || statusCode <= 201) {
 				this.family = Family.SUCCESSFUL;
 			} else if (statusCode >= 400 || statusCode <= 500) {
@@ -136,6 +144,16 @@ public class InstaError {
 		 */
 		public String getReasonPhrase() {
 			return toString();
+		}
+
+		/**
+		 * Get the associated Exception class
+		 * if null no exception needs to be raised.
+		 *
+		 * @return the Error code
+		 */
+		public Class<? extends RuntimeException> getExceptionClass() {
+			return exceptionClass;
 		}
 
 		/**

@@ -7,9 +7,9 @@ import java.util.Set;
 /**
  * The client configuration that declares common property names,
  * features, properties, provider classes and singleton instances that
- * may be used by a {@link org.idm.jinstapaper.client.InstaClient} instance.
+ * may be used by a InstaClient instance.
  * <p/>
- * An instance of this interface may be passed to the {@link org.idm.jinstapaper.client.InstaClient} when
+ * An instance of this interface may be passed to the InstaClient when
  * the client is created as follows:
  * <p/>
  * <blockquote><pre>
@@ -27,7 +27,7 @@ public interface InstaClientConfig extends FeaturesAndProperties {
 	 * The value MUST be an instance of {@link java.lang.Boolean}.
 	 * If the property is absent then the default value is "true".
 	 */
-	public static final String PROPERTY_JINSTAPAPER_PROPERTY_NAME = "jinstapaper.properties";
+	public static final String PROPERTY_JINSTAPAPER_PROPERTY_NAME = "insta4j.properties";
 
 	/**
 	 * Property holds the key that has the value of oauth customer key in order to access Instapaper Full api
@@ -41,10 +41,10 @@ public interface InstaClientConfig extends FeaturesAndProperties {
 	public static final String PROPERTY_CONSUMER_SECRET = "oauth.consumer.secret";
 
 	/**
-	 * Property if enabled will tell the {@link org.idm.jinstapaper.client.InstaClient} to add
+	 * Property if enabled will tell the InstaClient to add
 	 * {@link com.sun.jersey.api.client.filter.LoggingFilter} to {@link com.sun.jersey.api.client.Client}
 	 */
-	public static final String PROPERTY_LOG_HTTP_TRAFFIC = "jinstapaper.log.http.traffic";
+	public static final String PROPERTY_LOG_HTTP_TRAFFIC = "insta4j.log.http.traffic";
 
 
 	/**
