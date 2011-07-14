@@ -13,11 +13,8 @@ import com.sun.jersey.oauth.client.OAuthClientFilter;
 import com.sun.jersey.oauth.signature.OAuthParameters;
 import com.sun.jersey.oauth.signature.OAuthSecrets;
 import org.apache.log4j.Logger;
-import org.idm.insta4j.jaxb.InstaRecordBean;
-import org.idm.insta4j.jsonp.JAXBContextResolver;
-import org.idm.jinstapaper.client.InvalidCredentialsException;
-import org.idm.jinstapaper.client.config.DefaultInstaClientConfig;
-import org.idm.jinstapaper.client.config.InstaClientConfig;
+import org.idm.insta4j.client.config.DefaultInstaClientConfig;
+import org.idm.insta4j.client.config.InstaClientConfig;
 import org.idm.insta4j.jaxb.InstaRecordBean;
 import org.idm.insta4j.jsonp.JAXBContextResolver;
 import org.springframework.util.StringUtils;
@@ -79,7 +76,7 @@ public class FullInstaClient {
 	 * @param username		  Instapaper username
 	 * @param password		  Optional Instapaper password
 	 * @param instaClientConfig The client configuration.
-	 * @throws org.idm.jinstapaper.client.InvalidCredentialsException If username and password are not valid.
+	 * @throws InvalidCredentialsException If username and password are not valid.
 	 */
 	public FullInstaClient(final String username, final String password, final InstaClientConfig instaClientConfig) {
 		this.username(username);
@@ -263,7 +260,7 @@ public class FullInstaClient {
 	 * @param password An optional password.
 	 * @return A Map containing key 'oauth_token' with oauth user token
 	 *         and a value of token secret under the key 'oauth_token_secret'
-	 * @throws org.idm.jinstapaper.client.InvalidCredentialsException A RuntimeException is thrown if the user authentication failed
+	 * @throws InvalidCredentialsException A RuntimeException is thrown if the user authentication failed
 	 * @throws RuntimeException			Is thrown authorization with oAuth failed, the message will be what Instapaper Full
 	 *                                     api returns in case of an error.
 	 */

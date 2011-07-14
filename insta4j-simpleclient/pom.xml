@@ -2,19 +2,43 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<artifactId>insta4j</artifactId>
-		<groupId>org.idm.jinstapaper</groupId>
+		<groupId>org.idm.insta4j</groupId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>insta4j-simpleclient</artifactId>
 	<packaging>jar</packaging>
 	<name>insta4j-simpleclient</name>
-	<url>http://maven.apache.org</url>
-
+	<url>https://github.com//dzontak/insta4j</url>
+	<licenses>
+		<license>
+			<name>Apache License 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<scm>
+		<url>https://github.com//dzontak/insta4j</url>
+		<connection>scm:git@github.com/dzontak/insta4j.git</connection>
+		<developerConnection>scm:git@github.com/dzontak/insta4j.git</developerConnection>
+	</scm>
+	<developers>
+		<developer>
+			<id>dzontak</id>
+			<name>Denis Zontak</name>
+			<email>dzontak@gmail.com</email>
+			<url>http://toilettwit.info</url>
+			<roles>
+				<role>lead</role>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<timezone>-1</timezone>
+		</developer>
+	</developers>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -66,7 +90,7 @@
 			<version>1.8</version>
 		</dependency>
 		<dependency>
-			<groupId>org.idm.jinstapaper</groupId>
+			<groupId>org.idm.insta4j</groupId>
 			<artifactId>insta4j-core</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>

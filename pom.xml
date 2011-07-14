@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.idm.jinstapaper</groupId>
+	<groupId>org.idm.insta4j</groupId>
 	<artifactId>insta4j</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>insta4j</name>
 	<description>A Java library for the Instapaper Simple and Full API</description>
-	<url>http://jinstapaper.org/</url>
+	<url>https://github.com//dzontak/insta4j</url>
 	<licenses>
 		<license>
 			<name>Apache License 2.0</name>
@@ -16,9 +16,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<url>https://github.com/dzontak/jinstapaper</url>
-		<connection>scm:git@github.com/dzontak/jinstapaper.git</connection>
-		<developerConnection>scm:git@github.com/dzontak/jinstapaper.git</developerConnection>
+		<url>https://github.com//dzontak/insta4j</url>
+		<connection>scm:git@github.com/dzontak/insta4j.git</connection>
+		<developerConnection>scm:git@github.com/dzontak/insta4j.git</developerConnection>
 	</scm>
 	<developers>
 		<developer>
@@ -34,10 +34,6 @@
 			<timezone>-1</timezone>
 		</developer>
 	</developers>
-	<issueManagement>
-		<system>Github</system>
-		<url>https://github.com/dzontak/jinstapaper/issues</url>
-	</issueManagement>
 	<repositories>
 		<repository>
 			<id>maven2-repository.java.net</id>
@@ -50,6 +46,5 @@
 		<module>insta4j-core</module>
 		<module>insta4j-client</module>
 		<module>insta4j-simpleclient</module>
-
 	</modules>
 </project>

@@ -1,6 +1,7 @@
 package org.idm.jinstapaper;
 
 import junit.framework.Assert;
+import org.idm.insta4j.SimpleInstapaperClient;
 import org.junit.Test;
 
 import javax.security.auth.login.FailedLoginException;

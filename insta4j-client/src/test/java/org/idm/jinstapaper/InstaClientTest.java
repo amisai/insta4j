@@ -1,9 +1,9 @@
 package org.idm.jinstapaper;
 
 import junit.framework.Assert;
-import org.idm.jinstapaper.client.FullInstaClient;
-import org.idm.jinstapaper.client.InvalidCredentialsException;
-import org.idm.jinstapaper.jaxb.InstaRecordBean;
+import org.idm.insta4j.client.FullInstaClient;
+import org.idm.insta4j.client.InvalidCredentialsException;
+import org.idm.insta4j.jaxb.InstaRecordBean;
 import org.junit.Test;
 
 import javax.security.auth.login.FailedLoginException;
