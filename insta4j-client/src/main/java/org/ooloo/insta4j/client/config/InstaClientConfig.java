@@ -25,7 +25,7 @@ public interface InstaClientConfig extends FeaturesAndProperties {
 	 * The value MUST be an instance of {@link java.lang.Boolean}.
 	 * If the property is absent then the default value is "true".
 	 */
-	public static final String PROPERTY_JINSTAPAPER_PROPERTY_NAME = "org.ooloo.org.ooloo.insta4j.properties";
+	public static final String PROPERTY_JINSTAPAPER_PROPERTY_NAME = "insta4j.properties";
 
 	/**
 	 * Property holds the key that has the value of oauth customer key in order to access Instapaper Full api

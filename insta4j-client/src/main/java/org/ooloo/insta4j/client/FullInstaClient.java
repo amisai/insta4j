@@ -24,6 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import static java.util.Arrays.asList;
@@ -281,13 +282,17 @@ public class FullInstaClient {
 			} else {
 				// raise an exception
 				try {
-					final Constructor<? extends RuntimeException> constructor = exceptionClass
-							.getConstructor(String.class);
-					throw constructor.newInstance(error.getReasonPhrase());
-
-				} catch (Exception e) {
-					throw new RuntimeException(error.getReasonPhrase());
+					throw exceptionClass.getConstructor(String.class).newInstance(error.getReasonPhrase());
+				} catch (InstantiationException e) {
+					//ignore
+				} catch (IllegalAccessException e) {
+					//ignore
+				} catch (InvocationTargetException e) {
+					//ignore
+				} catch (NoSuchMethodException e) {
+					//ignore
 				}
+				throw new RuntimeException(response.getEntity(String.class));
 			}
 		} else {
 			throw new RuntimeException(String.format("Unknown error code %s [%s]", response.getStatus(),
