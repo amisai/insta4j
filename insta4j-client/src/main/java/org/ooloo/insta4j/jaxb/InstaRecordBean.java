@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * A jaxb annotated bean which can bind any json record retured by Full Instapaper Api.
+ *
  * @author dzontak@gmail.com
  */
 @XmlRootElement(name = "instarecord")
@@ -52,5 +53,16 @@ public class InstaRecordBean {
 	public String error_code;
 	@XmlElement
 	public String message;
+
+	/**
+	 * Folder
+	 */
+	//[{"type":"folder","folder_id":1190085,"title":"news","sync_to_mobile":"1","position":1310749195}]
+	@XmlElement
+	public String folder_id;
+	@XmlElement
+	public boolean sync_to_mobile;
+	@XmlElement
+	public long position;
 
 }

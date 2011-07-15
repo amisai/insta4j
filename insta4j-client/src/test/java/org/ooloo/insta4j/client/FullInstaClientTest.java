@@ -1,6 +1,7 @@
 package org.ooloo.insta4j.client;
 
 import junit.framework.Assert;
+import org.ietf.jgss.Oid;
 import org.junit.Before;
 import org.junit.Test;
 import org.ooloo.insta4j.jaxb.InstaRecordBean;
@@ -55,4 +56,78 @@ public class FullInstaClientTest {
 		Assert.assertNotNull(authorize.get("oauth_token"));
 		Assert.assertNotNull(authorize.get("oauth_token_secret"));
 	}
+
+	@Test
+	public void shouldAddBookmark() throws Exception {
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		final InstaRecordBean instaRecordBean = client.addBookmark("http://news.ycombinator.com/", null, null, null);
+		Assert.assertNotNull(instaRecordBean);
+		Assert.assertEquals("bookmark", instaRecordBean.type);
+		Assert.assertEquals("Hacker News", instaRecordBean.title);
+		Assert.assertEquals("http://news.ycombinator.com/", instaRecordBean.url);
+		Assert.assertEquals("", instaRecordBean.description);
+		Assert.assertNotNull(instaRecordBean.hash);
+		Assert.assertNotNull(instaRecordBean.progress_timestamp);
+		Assert.assertNotNull(instaRecordBean.time);
+		Assert.assertNotNull(instaRecordBean.starred);
+		Assert.assertNotNull(instaRecordBean.progress);
+		Assert.assertNotNull(instaRecordBean.private_source);
+	}
+
+	@Test
+	public void shouldAddBookmarkWithCustomTitle() throws Exception {
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		final InstaRecordBean instaRecordBean = client
+				.addBookmark("http://news.ycombinator.com/", "My Hacker News", null, null);
+		Assert.assertNotNull(instaRecordBean);
+		Assert.assertEquals("bookmark", instaRecordBean.type);
+		Assert.assertEquals("My Hacker News", instaRecordBean.title);
+		Assert.assertEquals("http://news.ycombinator.com/", instaRecordBean.url);
+		Assert.assertEquals("", instaRecordBean.description);
+		Assert.assertNotNull(instaRecordBean.hash);
+		Assert.assertNotNull(instaRecordBean.progress_timestamp);
+		Assert.assertNotNull(instaRecordBean.time);
+		Assert.assertNotNull(instaRecordBean.starred);
+		Assert.assertNotNull(instaRecordBean.progress);
+		Assert.assertNotNull(instaRecordBean.private_source);
+	}
+
+
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldFailToAddBookmarkToFolderThatDoesNotExist() throws Exception {
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		final InstaRecordBean instaRecordBean = client
+				.addBookmark("http://news.ycombinator.com/", null, "IDONTEXISTYET", null);
+	}
+
+	@Test
+	public void shouldCreateFolder() throws Exception {
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		final InstaRecordBean instaRecordBean = client.createFolder("hackernews");
+		Assert.assertNotNull(instaRecordBean);
+		Assert.assertEquals("folder", instaRecordBean.type);
+		Assert.assertNotNull(instaRecordBean.folder_id);
+		Assert.assertNotNull(instaRecordBean.position);
+		Assert.assertEquals(true, instaRecordBean.sync_to_mobile);
+		// delete the folder
+		Assert.assertTrue(client.deleteFolder(instaRecordBean.folder_id));
+
+	}
+
+
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldDeleteFolderThatDoesNotExist() throws Exception {
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		Assert.assertFalse(client.deleteFolder("000"));
+	}
+
+	@Test
+	public void shouldDeleteAnExistingFolderId() throws Exception {
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		final String folderId = String.valueOf(System.currentTimeMillis());
+		final InstaRecordBean instaRecordBean = client.createFolder(folderId);
+		Assert.assertNotNull(instaRecordBean);
+		Assert.assertTrue(client.deleteFolder(instaRecordBean.folder_id));
+	}
+
 }

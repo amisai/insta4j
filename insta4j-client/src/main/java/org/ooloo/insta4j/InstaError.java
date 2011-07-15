@@ -63,7 +63,7 @@ public class InstaError {
 		// 1241: Invalid or missing bookmark_id
 		_1241(1241, "Invalid or missing bookmark_id", RuntimeException.class),
 		// 1242: Invalid or missing folder_id
-		_1242(1242, "Invalid or missing folder_id", RuntimeException.class),
+		_1242(1242, "Invalid or missing folder_id", IllegalArgumentException.class),
 		// 1243: Invalid or missing progress
 		_1243(1243, "Invalid or missing progress", RuntimeException.class),
 		// 1244: Invalid or missing progress_timestamp

@@ -18,6 +18,8 @@ import org.ooloo.insta4j.client.config.DefaultInstaClientConfig;
 import org.ooloo.insta4j.client.config.InstaClientConfig;
 import org.ooloo.insta4j.jaxb.InstaRecordBean;
 import org.ooloo.insta4j.jsonp.JAXBContextResolver;
+import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.ws.rs.core.MediaType;
@@ -267,11 +269,9 @@ public class FullInstaClient {
 			postData.add("have", StringUtils.collectionToDelimitedString(asList(bookmarkId), ","));
 		}
 
-		final ClientResponse response = processResponse(
+		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class, postData));
-		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
-		});
 
 		return instaRecordBeans;
 	}
@@ -298,11 +298,9 @@ public class FullInstaClient {
 		postData.add("progress", progress);
 		postData.add("progressTimestamp", progressTimestamp);
 
-		final ClientResponse response = processResponse(
+		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class, postData));
-		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
-		});
 		return instaRecordBeans;
 	}
 
@@ -334,10 +332,9 @@ public class FullInstaClient {
 	 *         In any bookmark objects output by this API, the private_source field will be an empty string for public bookmarks, and this value for private bookmarks. They will have an automatically generated, non-functioning value in the url field of the form instapaper://private-content/.... Do not use these URLs in your application.
 	 */
 
-	public List<InstaRecordBean> addBookmark(final String url, final String title, final String folder_id,
+	public InstaRecordBean addBookmark(final String url, final String title, final String folder_id,
 			final Boolean resolve_final_url) {
-		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL)
-				.path("/api/1/bookmarks/update_read_progress");
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/add");
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		postData.add("url", url);
 
@@ -348,15 +345,13 @@ public class FullInstaClient {
 			postData.add("folder_id", folder_id);
 		}
 		if (resolve_final_url != null) {
-			postData.add("resolve_final_url", resolve_final_url ? 1 : 0);
+			postData.add("resolve_final_url", resolve_final_url ? "1" : "0");
 		}
 
-		final ClientResponse response = processResponse(
+		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class, postData));
-		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
-		});
-		return instaRecordBeans;
+		return (instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null);
 	}
 
 	/**
@@ -370,11 +365,9 @@ public class FullInstaClient {
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmark_id);
 
-		final ClientResponse response = processResponse(
+		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class, postData));
-		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
-		});
 		return (instaRecordBeans != null ? true : false);
 	}
 
@@ -389,11 +382,9 @@ public class FullInstaClient {
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmark_id);
 
-		final ClientResponse response = processResponse(
+		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class, postData));
-		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
-		});
 		return instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null;
 	}
 
@@ -408,11 +399,9 @@ public class FullInstaClient {
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmark_id);
 
-		final ClientResponse response = processResponse(
+		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class, postData));
-		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
-		});
 		return instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null;
 	}
 
@@ -427,11 +416,9 @@ public class FullInstaClient {
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmark_id);
 
-		final ClientResponse response = processResponse(
+		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class, postData));
-		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
-		});
 		return instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null;
 	}
 
@@ -446,11 +433,10 @@ public class FullInstaClient {
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmark_id);
 
-		final ClientResponse response = processResponse(
+		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class, postData));
-		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
-		});
+
 		return instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null;
 	}
 
@@ -467,11 +453,9 @@ public class FullInstaClient {
 		postData.add("bookmark_id", bookmark_id);
 		postData.add("folder_id", folder_id);
 
-		final ClientResponse response = processResponse(
+		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class, postData));
-		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
-		});
 		return instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null;
 	}
 
@@ -505,11 +489,9 @@ public class FullInstaClient {
 	public List<InstaRecordBean> listFolders() {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/folders/list");
 
-		final ClientResponse response = processResponse(
+		return processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class));
-		return response.getEntity(new GenericType<List<InstaRecordBean>>() {
-		});
 	}
 
 	/**
@@ -521,16 +503,33 @@ public class FullInstaClient {
 	 * @throws ResourceExistsException Is thrown if user already has a folder with this title
 	 */
 	public InstaRecordBean createFolder(final String title) {
-		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/move");
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/folders/add");
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		postData.add("title", title);
 
-		final ClientResponse response = processResponse(
+		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class, postData));
-		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
-		});
+
 		return instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null;
+	}
+
+	/**
+	 * Deletes the folder and moves any articles in it to the Archive.
+	 *
+	 * @param folder_id A unique identifier of the folder.
+	 * @return True if the folder was deleted
+	 * @throws ResourceExistsException Is thrown If the folder could not be created with a reason in the message.
+	 */
+	public boolean deleteFolder(final String folder_id) {
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/folders/delete");
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		postData.add("folder_id", folder_id);
+
+		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
+						.post(ClientResponse.class, postData));
+		return (instaRecordBeans != null ? true : false);
 	}
 
 
@@ -553,12 +552,60 @@ public class FullInstaClient {
 				} catch (NoSuchMethodException e) {
 					//ignore
 				}
+
 				throw new RuntimeException(response.getEntity(String.class));
 			}
 		} else {
 			throw new RuntimeException(String.format("Unknown error code %s [%s]", response.getStatus(),
 					response.getEntity(String.class)));
 		}
+	}
+
+	private List<InstaRecordBean> processJsonResponse(final ClientResponse response) {
+
+		final List<InstaRecordBean> responseEntity = response.getEntity(new GenericType<List<InstaRecordBean>>() {
+		});
+		final InstaRecordBean errorRecord = this.getErrorRecord(responseEntity);
+		final int errorCode = (errorRecord != null ? Integer.parseInt(errorRecord.error_code) : response.getStatus());
+
+		final InstaError.Error error = InstaError.Error.fromErrorCode(errorCode);
+		if (error != null) {
+			final Class<? extends RuntimeException> exceptionClass = error.getExceptionClass();
+			if (exceptionClass == null) {
+				return responseEntity;
+			} else {
+				// raise an exception
+				try {
+					final String message = (errorRecord != null ?
+							String.format("[%s] %s", errorRecord.error_code, errorRecord.message) :
+							error.getReasonPhrase());
+
+					throw exceptionClass.getConstructor(String.class).newInstance(message);
+				} catch (InstantiationException e) {
+					//ignore
+				} catch (IllegalAccessException e) {
+					//ignore
+				} catch (InvocationTargetException e) {
+					//ignore
+				} catch (NoSuchMethodException e) {
+					//ignore
+				}
+
+				throw new RuntimeException(response.getEntity(String.class));
+			}
+		} else {
+			throw new RuntimeException(String.format("Unknown error code %s [%s]", response.getStatus(),
+					response.getEntity(String.class)));
+		}
+	}
+
+	private InstaRecordBean getErrorRecord(final List<InstaRecordBean> responseEntity) {
+		for (final InstaRecordBean record : responseEntity) {
+			if ("error".equals(record.type)) {
+				return record;
+			}
+		}
+		return null;
 	}
 
 
