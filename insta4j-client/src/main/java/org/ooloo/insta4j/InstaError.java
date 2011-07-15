@@ -1,6 +1,7 @@
 package org.ooloo.insta4j;
 
 import org.ooloo.insta4j.client.InvalidCredentialsException;
+import org.ooloo.insta4j.client.ResourceExistsException;
 
 public class InstaError {
 
@@ -78,7 +79,7 @@ public class InstaError {
 		//1250: Invalid or missing title
 		_1250(1250, "Invalid or missing title", RuntimeException.class),
 		//1251: User already has a folder with this title
-		_1251(1251, "User already has a folder with this title", RuntimeException.class),
+		_1251(1251, "User already has a folder with this title", ResourceExistsException.class),
 		//1252: Cannot add bookmarks to this folder
 		_1252(1252, "Cannot add bookmarks to this folder", RuntimeException.class);
 

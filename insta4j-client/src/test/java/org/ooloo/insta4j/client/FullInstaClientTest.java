@@ -1,8 +1,9 @@
 package org.ooloo.insta4j.client;
 
 import junit.framework.Assert;
-import org.ooloo.insta4j.jaxb.InstaRecordBean;
+import org.junit.Before;
 import org.junit.Test;
+import org.ooloo.insta4j.jaxb.InstaRecordBean;
 
 import javax.security.auth.login.FailedLoginException;
 import java.util.List;
@@ -12,6 +13,7 @@ public class FullInstaClientTest {
 
 	@Test
 	public void listBookmarksTest() {
+
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
 		final List<InstaRecordBean> instaRecordBeans = client.listBookmarks(null, null, null);
 

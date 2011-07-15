@@ -168,55 +168,6 @@ public class FullInstaClient {
 	}
 
 	/**
-	 * Lists the user’s unread bookmarks, and can also synchronize reading positions.
-	 *
-	 * @param limit	  Optional. A number between 1 and 500, default 25.
-	 * @param folderId   Optional. Possible values are unread (default), starred, archive,
-	 *                   or a folder_id value from /api/1/folders/list.
-	 * @param bookmarkId Optional. A concatenation of bookmark_id values that the client already has from the specified folder. See below.
-	 *                   <p>
-	 *                   The “have” parameter: This is a comma-separated list of bookmark_id values that the client
-	 *                   already has in its local bookmark data, and shouldn’t be re-sent. Any IDs sent in the have parameter
-	 *                   that would not have appeared in the list within the given limit are returned in a delete_ids parameter on the meta object.
-	 *                   </p>
-	 *                   <p>
-	 *                   The have parameter can just be a list of the bookmark_id values, e.g.:
-	 *                   12345,12346,12347
-	 *                   …in which case Instapaper won’t include those bookmarks in the output.
-	 *                   </p>
-	 *                   <p>
-	 *                   But it can also do more. Each bookmark returned by the API has a hash value, which is computed from its URL, title, description, and reading progress. If you join the hash value you have for an article with its article ID using a colon, e.g.:
-	 *                   12345:OjMuzFp6,12346:0n4ONgYs,12347:YXo82wTR
-	 *                   …then Instapaper will omit those bookmarks from the output, but only if the hashes haven’t changed. So you can use this method to selectively be informed of updates to article metadata without otherwise re-downloading the entire list on each update.
-	 *                   </p>
-	 *                   <p>
-	 *                   Finally, you can optionally append two more fields to each ID with colons to indicate how far the user has read each article, as a floating-point value between 0.0 and 1.0 to indicate progress and the Unix timestamp value of the time that the progress was recorded, e.g.:
-	 *                   12345:OjMuzFp6:0.5:1288584076
-	 *                   This would indicate that the bookmark with bookmark_id=12345 and hash=OjMuzFp6 was read to 0.5 progress, or 50% of its length, at timestamp 1288584076 (2010-11-01 12:01:16am EST). If the server’s information is less recent than this, it will update the bookmark and return it in the output with a new hash value.
-	 *                   </p>
-	 * @return One meta object, the current user, and between 0 and limit bookmarks.
-	 */
-	public List<InstaRecordBean> listBookmarks(final String limit, final String folderId, final String... bookmarkId) {
-		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/list");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
-		if (limit != null) {
-			postData.add("limit", limit);
-		}
-		if (folderId != null) {
-			postData.add("folder_id", folderId);
-		}
-		if (bookmarkId != null) {
-			postData.add("have", StringUtils.collectionToDelimitedString(asList(bookmarkId), ","));
-		}
-		final List<InstaRecordBean> instaRecordBeans = resource.type(MediaType.APPLICATION_FORM_URLENCODED)
-				.accept(MediaType.APPLICATION_JSON).post(new GenericType<List<InstaRecordBean>>() {
-				}, postData);
-
-		return instaRecordBeans;
-
-	}
-
-	/**
 	 * Returns the currently logged in user.
 	 * Output on success: A user object, e.g.
 	 * [{"type":"user","user_id":54321,"username":"TestUserOMGLOL"}]
@@ -225,9 +176,11 @@ public class FullInstaClient {
 	 */
 	public InstaRecordBean verifyCredentials() {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/account/verify_credentials");
-		final List<InstaRecordBean> instaRecordBeans = resource.accept(MediaType.APPLICATION_JSON)
-				.post(new GenericType<List<InstaRecordBean>>() {
-				});
+		final ClientResponse response = processResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
+						.post(ClientResponse.class));
+		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
+		});
 
 		return instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null;
 	}
@@ -272,6 +225,314 @@ public class FullInstaClient {
 		return aouthTokenMap;
 	}
 
+	/**
+	 * Lists the user's unread bookmarks, and can also synchronize reading positions.
+	 *
+	 * @param limit	  Optional. A number between 1 and 500, default 25.
+	 * @param folderId   Optional. Possible values are unread (default), starred, archive,
+	 *                   or a folder_id value from /api/1/folders/list.
+	 * @param bookmarkId Optional. A concatenation of bookmark_id values that the client already has from the specified folder. See below.
+	 *                   <p>
+	 *                   The “have” parameter: This is a comma-separated list of bookmark_id values that the client
+	 *                   already has in its local bookmark data, and shouldn’t be re-sent. Any IDs sent in the have parameter
+	 *                   that would not have appeared in the list within the given limit are returned in a delete_ids parameter on the meta object.
+	 *                   </p>
+	 *                   <p>
+	 *                   The have parameter can just be a list of the bookmark_id values, e.g.:
+	 *                   12345,12346,12347
+	 *                   …in which case Instapaper won’t include those bookmarks in the output.
+	 *                   </p>
+	 *                   <p>
+	 *                   But it can also do more. Each bookmark returned by the API has a hash value, which is computed from its URL, title, description, and reading progress. If you join the hash value you have for an article with its article ID using a colon, e.g.:
+	 *                   12345:OjMuzFp6,12346:0n4ONgYs,12347:YXo82wTR
+	 *                   …then Instapaper will omit those bookmarks from the output, but only if the hashes haven’t changed. So you can use this method to selectively be informed of updates to article metadata without otherwise re-downloading the entire list on each update.
+	 *                   </p>
+	 *                   <p>
+	 *                   Finally, you can optionally append two more fields to each ID with colons to indicate how far the user has read each article, as a floating-point value between 0.0 and 1.0 to indicate progress and the Unix timestamp value of the time that the progress was recorded, e.g.:
+	 *                   12345:OjMuzFp6:0.5:1288584076
+	 *                   This would indicate that the bookmark with bookmark_id=12345 and hash=OjMuzFp6 was read to 0.5 progress, or 50% of its length, at timestamp 1288584076 (2010-11-01 12:01:16am EST). If the server’s information is less recent than this, it will update the bookmark and return it in the output with a new hash value.
+	 *                   </p>
+	 * @return One meta object, the current user, and between 0 and limit bookmarks.
+	 */
+	public List<InstaRecordBean> listBookmarks(final String limit, final String folderId, final String... bookmarkId) {
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/list");
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		if (limit != null) {
+			postData.add("limit", limit);
+		}
+		if (folderId != null) {
+			postData.add("folder_id", folderId);
+		}
+		if (bookmarkId != null) {
+			postData.add("have", StringUtils.collectionToDelimitedString(asList(bookmarkId), ","));
+		}
+
+		final ClientResponse response = processResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
+						.post(ClientResponse.class, postData));
+		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
+		});
+
+		return instaRecordBeans;
+	}
+
+
+	/**
+	 * Updates the user's reading progress on a single article.
+	 * This functionality is included in the have parameter of the /api/1/bookmarks/list operation above,
+	 * but this method exists in case you want to call it separately.
+	 *
+	 * @param bookmarkId:        The bookmark to update.
+	 * @param progress:          The user's progress, as a floating-point number between 0.0 and 1.0,
+	 *                           defined as the top edge of the user's current viewport, expressed as a percentage of the article’s total length.
+	 * @param progressTimestamp: The Unix timestamp value of the time that the progress was recorded.
+	 * @return The modified bookmark on success.
+	 */
+
+	public List<InstaRecordBean> updateReadProgress(final String bookmarkId, final double progress,
+			final String progressTimestamp) {
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL)
+				.path("/api/1/bookmarks/update_read_progress");
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		postData.add("bookmark_id", bookmarkId);
+		postData.add("progress", progress);
+		postData.add("progressTimestamp", progressTimestamp);
+
+		final ClientResponse response = processResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
+						.post(ClientResponse.class, postData));
+		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
+		});
+		return instaRecordBeans;
+	}
+
+	/**
+	 * /api/1/bookmarks/add
+	 * Adds a new unread bookmark to the user's account.
+	 *
+	 * @param url:               Required, except when using private sources (see below).
+	 * @param title:             Optional. If omitted or empty, the title will be looked up by Instapaper synchronously. This will delay the action, so please specify the title if you have it.
+	 *                           description: Optional. A brief, plaintext description or summary of the article. Twitter clients often put the source tweet’s text here, and Instapaper’s bookmarklet puts the selected text here if the user has selected any.
+	 * @param folder_id:         Optional. The integer folder ID as returned by the folder/list method described below.
+	 * @param resolve_final_url: Optional, default 1. Specify 1 if the url might not be the final URL that a browser would resolve when fetching it, such as if it’s a shortened URL, it’s a URL from an RSS feed that might be proxied, or it’s likely to go through any other redirection when viewed in a browser. This will cause Instapaper to attempt to resolve all redirects itself, synchronously. This will delay the action, so please specify 0 for this parameter if you’re reasonably confident that this URL won’t be redirected, such as if it’s already being viewed in a web browser.
+	 * @return The bookmark on success, which may not be new: if this user already saved this URL,
+	 *         it will be moved to the top of the Unread list (or the specified folder) and assigned the new values for title, description, and content (see below).
+	 *         In addition to standard invalid-parameter errors, you may encounter these special errors:
+	 *         <p/>
+	 *         1220: Domain requires full content to be supplied — Pages from this domain require the content parameter below, usually because a login or subscription is required to get their content, and you haven’t supplied it. If you already have the page loaded in a browser environment, simply re-submit with the body contents (e.g. Javascript’s document.body.innerHTML). If not, you may need to open it in a browser first, or give the user a helpful message explaining that content from this site needs to be viewed in a browser before saving to Instapaper.
+	 *         1221: Domain has opted out of Instapaper compatibility — The publisher of this domain has requested that Instapaper not save any of its content. Do not attempt to work around this, which is prohibited in the API Terms of Use. Please give the user a helpful message, where applicable, that the publishers of this site do not permit Instapaper usage.
+	 *         Supplying HTML content for a bookmarkYou can optionally supply the full HTML content of pages that Instapaper wouldn’t otherwise be able to crawl from its servers, such as pages that require logins or subscriptions.
+	 *         <p/>
+	 *         content: The full HTML content of the page, or just the <body> node’s content if possible, such as the value of document.body.innerHTML in Javascript. Must be UTF-8.
+	 *         A bookmark’s content is not shared to other users through any sharing functionality (such as Starred-folder subscriptions). It is only used to generate the text version of the bookmark for the user that created it.
+	 *         This is not for material that doesn’t have a dedicated, permanent URL or should be excluded from sharing and tracking functionality completely, such as a private message on a social network, driving directions, or the results of a session. For that, see “Private sources” below.
+	 *         Private sourcesBookmarks can be private, such as the bookmarks that result from Instapaper’s email-in text feature. Private bookmarks are not shared to other users through any sharing functionality (such as Starred-folder subscriptions), and they do not have URLs.
+	 *         Set this parameter to a non-empty string to set a bookmark to private:
+	 *         <p/>
+	 *         is_private_from_source: A short description label of the source of the private bookmark, such as “email” or “MyNotebook Pro”.
+	 *         When using this, values passed to url will be ignored, and the content parameter (above) is required.
+	 *         In any bookmark objects output by this API, the private_source field will be an empty string for public bookmarks, and this value for private bookmarks. They will have an automatically generated, non-functioning value in the url field of the form instapaper://private-content/.... Do not use these URLs in your application.
+	 */
+
+	public List<InstaRecordBean> addBookmark(final String url, final String title, final String folder_id,
+			final Boolean resolve_final_url) {
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL)
+				.path("/api/1/bookmarks/update_read_progress");
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		postData.add("url", url);
+
+		if (title != null) {
+			postData.add("title", title);
+		}
+		if (folder_id != null) {
+			postData.add("folder_id", folder_id);
+		}
+		if (resolve_final_url != null) {
+			postData.add("resolve_final_url", resolve_final_url ? 1 : 0);
+		}
+
+		final ClientResponse response = processResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
+						.post(ClientResponse.class, postData));
+		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
+		});
+		return instaRecordBeans;
+	}
+
+	/**
+	 * Permanently deletes the specified bookmark. This is NOT the same as Archive. Please be clear to users if you’re going to do this.
+	 *
+	 * @param bookmark_id An empty array on success.
+	 * @return True on sucess
+	 */
+	public boolean deleteBookmark(final String bookmark_id) {
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/delete");
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		postData.add("bookmark_id", bookmark_id);
+
+		final ClientResponse response = processResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
+						.post(ClientResponse.class, postData));
+		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
+		});
+		return (instaRecordBeans != null ? true : false);
+	}
+
+	/**
+	 * Stars the specified bookmark.
+	 *
+	 * @param bookmark_id
+	 * @return The modified bookmark on success.
+	 */
+	public InstaRecordBean starBookmark(final String bookmark_id) {
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/star");
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		postData.add("bookmark_id", bookmark_id);
+
+		final ClientResponse response = processResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
+						.post(ClientResponse.class, postData));
+		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
+		});
+		return instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null;
+	}
+
+	/**
+	 * Un-stars the specified bookmark.
+	 *
+	 * @param bookmark_id
+	 * @return The modified bookmark on success.
+	 */
+	public InstaRecordBean unstarBookmark(final String bookmark_id) {
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/unstar");
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		postData.add("bookmark_id", bookmark_id);
+
+		final ClientResponse response = processResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
+						.post(ClientResponse.class, postData));
+		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
+		});
+		return instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null;
+	}
+
+	/**
+	 * Moves the specified bookmark to the Archive.
+	 *
+	 * @param bookmark_id
+	 * @return The modified bookmark on success.
+	 */
+	public InstaRecordBean archiveBookmark(final String bookmark_id) {
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/archive");
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		postData.add("bookmark_id", bookmark_id);
+
+		final ClientResponse response = processResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
+						.post(ClientResponse.class, postData));
+		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
+		});
+		return instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null;
+	}
+
+	/**
+	 * Moves the specified bookmark to the top of the Unread folder.
+	 *
+	 * @param bookmark_id
+	 * @return The modified bookmark on success.
+	 */
+	public InstaRecordBean unarchiveBookmark(final String bookmark_id) {
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/unarchive");
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		postData.add("bookmark_id", bookmark_id);
+
+		final ClientResponse response = processResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
+						.post(ClientResponse.class, postData));
+		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
+		});
+		return instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null;
+	}
+
+
+	/**
+	 * Moves the specified bookmark to the top of the Unread folder.
+	 *
+	 * @param bookmark_id
+	 * @return The modified bookmark on success.
+	 */
+	public InstaRecordBean moveBookmark(final String bookmark_id, final String folder_id) {
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/move");
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		postData.add("bookmark_id", bookmark_id);
+		postData.add("folder_id", folder_id);
+
+		final ClientResponse response = processResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
+						.post(ClientResponse.class, postData));
+		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
+		});
+		return instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null;
+	}
+
+	/**
+	 * Returns the specified bookmark’s processed text-view HTML, which is always text/html encoded as UTF-8.
+	 *
+	 * @param bookmark_id
+	 * @return HTML with an HTTP 200 OK status, not the standard API output structures,
+	 *         or an HTTP 400 status code and a standard error structure if anything goes wrong.
+	 */
+	public String getBookmark(final String bookmark_id, final String folder_id) {
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/get_text");
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		postData.add("bookmark_id", bookmark_id);
+		postData.add("folder_id", folder_id);
+
+		final ClientResponse response = processResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
+						.post(ClientResponse.class, postData));
+
+		return response.getEntity(String.class);
+	}
+
+	/**
+	 * A list of the account’s user-created folders.
+	 * <p/>
+	 *
+	 * @return A list of the account’s user-created folders. This only includes organizational folders and does
+	 *         not include RSS-feed folders or starred-subscription folders, as the implementation of those is changing in the near future
+	 */
+	public List<InstaRecordBean> listFolders() {
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/folders/list");
+
+		final ClientResponse response = processResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
+						.post(ClientResponse.class));
+		return response.getEntity(new GenericType<List<InstaRecordBean>>() {
+		});
+	}
+
+	/**
+	 * Creates an organizational folder.
+	 *
+	 * @param title
+	 * @return The newly created folder, or error 1251: “User already has a folder with this title”
+	 *         if the title isn’t unique among this user's folders.
+	 * @throws ResourceExistsException Is thrown if user already has a folder with this title
+	 */
+	public InstaRecordBean createFolder(final String title) {
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/move");
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		postData.add("title", title);
+
+		final ClientResponse response = processResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
+						.post(ClientResponse.class, postData));
+		final List<InstaRecordBean> instaRecordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
+		});
+		return instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null;
+	}
+
 
 	private ClientResponse processResponse(final ClientResponse response) {
 		final InstaError.Error error = InstaError.Error.fromErrorCode(response.getStatus());
@@ -299,4 +560,6 @@ public class FullInstaClient {
 					response.getEntity(String.class)));
 		}
 	}
+
+
 }
