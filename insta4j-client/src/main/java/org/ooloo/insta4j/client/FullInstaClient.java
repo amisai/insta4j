@@ -12,6 +12,7 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.sun.jersey.oauth.client.OAuthClientFilter;
 import com.sun.jersey.oauth.signature.OAuthParameters;
 import com.sun.jersey.oauth.signature.OAuthSecrets;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.apache.log4j.Logger;
 import org.ooloo.insta4j.InstaError;
 import org.ooloo.insta4j.client.config.DefaultInstaClientConfig;
@@ -25,6 +26,7 @@ import org.springframework.util.StringUtils;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -463,6 +465,7 @@ public class FullInstaClient {
 	 * Returns the specified bookmark’s processed text-view HTML, which is always text/html encoded as UTF-8.
 	 *
 	 * @param bookmark_id
+	 * @param folder_id
 	 * @return HTML with an HTTP 200 OK status, not the standard API output structures,
 	 *         or an HTTP 400 status code and a standard error structure if anything goes wrong.
 	 */
@@ -533,6 +536,15 @@ public class FullInstaClient {
 	}
 
 
+	/**
+	 * Handle http error codes and throw and exception assinged in the enumeration
+	 * {@link InstaError.Error#exceptionClass}
+	 *
+	 * @param response The jersey client response
+	 * @return Back the response if If the the status Belongs to {@link InstaError.Error.Family#SUCCESSFUL}
+	 *         else throw and exception type assegned to {@link InstaError.Error#exceptionClass} associated to the
+	 *         {@link ClientResponse#status}
+	 */
 	private ClientResponse processResponse(final ClientResponse response) {
 		final InstaError.Error error = InstaError.Error.fromErrorCode(response.getStatus());
 		if (error != null) {
@@ -561,18 +573,29 @@ public class FullInstaClient {
 		}
 	}
 
+	/**
+	 * Handle Instapaper error codes and throw and exception assinged in the enumeration
+	 * {@link InstaError.Error#exceptionClass}
+	 *
+	 * @param response jersey client response
+	 * @return A collection of {@link InstaRecordBean}s if there is not error type retruned in the json response
+	 *         else throw and exception type assegned to {@link InstaError.Error#exceptionClass} associated to the
+	 *         Instapaper error code returned in the response if any
+	 */
+
 	private List<InstaRecordBean> processJsonResponse(final ClientResponse response) {
 
-		final List<InstaRecordBean> responseEntity = response.getEntity(new GenericType<List<InstaRecordBean>>() {
+		final List<InstaRecordBean> recordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
 		});
-		final InstaRecordBean errorRecord = this.getErrorRecord(responseEntity);
+		final List<InstaRecordBean> errorRecords = this.getRecordByType(recordBeans, "error");
+		final InstaRecordBean errorRecord = errorRecords.iterator().next();
 		final int errorCode = (errorRecord != null ? Integer.parseInt(errorRecord.error_code) : response.getStatus());
 
 		final InstaError.Error error = InstaError.Error.fromErrorCode(errorCode);
 		if (error != null) {
 			final Class<? extends RuntimeException> exceptionClass = error.getExceptionClass();
 			if (exceptionClass == null) {
-				return responseEntity;
+				return recordBeans;
 			} else {
 				// raise an exception
 				try {
@@ -599,13 +622,14 @@ public class FullInstaClient {
 		}
 	}
 
-	private InstaRecordBean getErrorRecord(final List<InstaRecordBean> responseEntity) {
-		for (final InstaRecordBean record : responseEntity) {
-			if ("error".equals(record.type)) {
-				return record;
+	public static List<InstaRecordBean> getRecordByType(final List<InstaRecordBean> recordBeanList, final String type) {
+		final List<InstaRecordBean> recordBeans = new ArrayList<InstaRecordBean>();
+		for (final InstaRecordBean record : recordBeanList) {
+			if (type.equals(record.type)) {
+				recordBeans.add(record);
 			}
 		}
-		return null;
+		return recordBeans;
 	}
 
 

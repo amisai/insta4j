@@ -130,4 +130,34 @@ public class FullInstaClientTest {
 		Assert.assertTrue(client.deleteFolder(instaRecordBean.folder_id));
 	}
 
+	@Test
+	public void shouldListFolders() throws Exception {
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		final List<InstaRecordBean> recordBeans = client.listFolders();
+		Assert.assertNotNull(recordBeans);
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void shouldFailToGetBookmarks() throws Exception {
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		final String bookarmks = client.getBookmark(null, null);
+		Assert.assertNotNull(bookarmks);
+	}
+
+	@Test(expected = java.lang.RuntimeException.class)
+	public void shouldGetBookmarks() throws Exception {
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		final List<InstaRecordBean> folders = FullInstaClient.getRecordByType(client.listFolders(), "folder");
+		Assert.assertNotNull(folders);
+		final InstaRecordBean folder = folders.iterator().next();
+
+		final List<InstaRecordBean> bookmarks = FullInstaClient
+				.getRecordByType(client.listBookmarks(null, null, null), "bookmark");
+		Assert.assertNotNull(bookmarks);
+		final InstaRecordBean recordBean = bookmarks.iterator().next();
+		final String thebookmark = client.getBookmark(recordBean.bookmark_id, folder.folder_id);
+		Assert.assertNotNull(thebookmark);
+	}
+
+
 }
