@@ -588,9 +588,8 @@ public class FullInstaClient {
 		final List<InstaRecordBean> recordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
 		});
 		final List<InstaRecordBean> errorRecords = this.getRecordByType(recordBeans, "error");
-		final InstaRecordBean errorRecord = errorRecords.iterator().next();
+		final InstaRecordBean errorRecord = (errorRecords.iterator().hasNext()?errorRecords.iterator().next():null);
 		final int errorCode = (errorRecord != null ? Integer.parseInt(errorRecord.error_code) : response.getStatus());
-
 		final InstaError.Error error = InstaError.Error.fromErrorCode(errorCode);
 		if (error != null) {
 			final Class<? extends RuntimeException> exceptionClass = error.getExceptionClass();
