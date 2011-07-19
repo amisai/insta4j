@@ -10,7 +10,7 @@
 	<packaging>jar</packaging>
 	<name>insta4j-core</name>
 	<description>A Java library for the Instapaper full API</description>
-	<url>https://github.com//dzontak/insta4j</url>
+	<url>http://dzontak.github.com/insta4j</url>
 	<licenses>
 		<license>
 			<name>Apache License 2.0</name>
