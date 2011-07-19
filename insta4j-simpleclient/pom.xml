@@ -35,6 +35,14 @@
 			</roles>
 			<timezone>-1</timezone>
 		</developer>
+		<developer>
+			<id>skunnumkal</id>
+			<name>Sajit Mathew Kunnumkal</name>
+			<email>sajit.kunnumkal@gmail.com</email>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
 	</developers>
 	<dependencies>
 		<dependency>
