@@ -103,7 +103,7 @@ public class FullInstaClientTest {
 	@Test
 	public void shouldCreateFolder() throws Exception {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
-		final InstaRecordBean instaRecordBean = client.createFolder("hackernews");
+		final InstaRecordBean instaRecordBean = client.createFolder(String.valueOf(System.currentTimeMillis()));
 		Assert.assertNotNull(instaRecordBean);
 		Assert.assertEquals("folder", instaRecordBean.type);
 		Assert.assertNotNull(instaRecordBean.folder_id);
@@ -144,13 +144,12 @@ public class FullInstaClientTest {
 		Assert.assertNotNull(bookarmks);
 	}
 
-	@Test(expected = java.lang.RuntimeException.class)
+	@Test()
 	public void shouldGetBookmarks() throws Exception {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
 		final List<InstaRecordBean> folders = FullInstaClient.getRecordByType(client.listFolders(), "folder");
 		Assert.assertNotNull(folders);
 		final InstaRecordBean folder = folders.iterator().next();
-
 		final List<InstaRecordBean> bookmarks = FullInstaClient
 				.getRecordByType(client.listBookmarks(null, null, null), "bookmark");
 		Assert.assertNotNull(bookmarks);
