@@ -37,6 +37,7 @@ import static java.util.Arrays.asList;
  * An Java client for Full API  http://www.instapaper.com/api/full
  *
  * @author Denis Zontak
+ * @author Sajit Kunnumkal
  */
 public class FullInstaClient {
 
@@ -494,7 +495,7 @@ public class FullInstaClient {
 
 		return processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
-						.post(ClientResponse.class));
+						.get(ClientResponse.class));
 	}
 
 	/**
@@ -533,6 +534,29 @@ public class FullInstaClient {
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class, postData));
 		return (instaRecordBeans != null ? true : false);
+	}
+	/**
+	 * ReOrders the position of the folders
+	 * @param folderPositionMap A <K,V> map where K = Folder Id and V = position
+	 * @return A list of the account’s user-created folders. This only includes organizational folders and does
+	 *         not include RSS-feed folders or starred-subscription folders, as the implementation of those is changing in the near future
+	 *
+	 */
+	public List<InstaRecordBean> setFolderOrder(Map<Integer,Integer> folderPositionMap){
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/folders/set_order");
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		StringBuffer dataBuffer = new StringBuffer();
+		Set<Integer> folderIds = folderPositionMap.keySet();
+		for(Integer folderId : folderIds){
+			dataBuffer.append(Integer.toString(folderId)+":"+Integer.toString(folderPositionMap.get(folderId))+",");
+		}
+		String ordermap = StringUtils.trimTrailingCharacter(dataBuffer.toString(), ',');
+		log.debug(ordermap);
+		postData.add("order", ordermap);
+		return processJsonResponse(
+				resource.type(MediaType.APPLICATION_FORM_URLENCODED).
+				accept(MediaType.APPLICATION_JSON).post(ClientResponse.class,postData));
+
 	}
 
 
@@ -588,12 +612,12 @@ public class FullInstaClient {
 		final List<InstaRecordBean> recordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
 		});
 		final List<InstaRecordBean> errorRecords = this.getRecordByType(recordBeans, "error");
-		final InstaRecordBean errorRecord = errorRecords.iterator().next();
-		final int errorCode = (errorRecord != null ? Integer.parseInt(errorRecord.error_code) : response.getStatus());
+		final InstaRecordBean errorRecord = (errorRecords.isEmpty())? null : errorRecords.iterator().next();
+		final int responseCode = (errorRecord != null ? Integer.parseInt(errorRecord.error_code) : response.getStatus());
 
-		final InstaError.Error error = InstaError.Error.fromErrorCode(errorCode);
-		if (error != null) {
-			final Class<? extends RuntimeException> exceptionClass = error.getExceptionClass();
+		final InstaError.Error responseStatus = InstaError.Error.fromErrorCode(responseCode);
+		if (responseStatus != null) {
+			final Class<? extends RuntimeException> exceptionClass = responseStatus.getExceptionClass();
 			if (exceptionClass == null) {
 				return recordBeans;
 			} else {
@@ -601,7 +625,7 @@ public class FullInstaClient {
 				try {
 					final String message = (errorRecord != null ?
 							String.format("[%s] %s", errorRecord.error_code, errorRecord.message) :
-							error.getReasonPhrase());
+							responseStatus.getReasonPhrase());
 
 					throw exceptionClass.getConstructor(String.class).newInstance(message);
 				} catch (InstantiationException e) {
