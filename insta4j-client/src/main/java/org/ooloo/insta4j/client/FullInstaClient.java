@@ -287,19 +287,19 @@ public class FullInstaClient {
 	 * @return The modified bookmark on success.
 	 */
 
-	public List<InstaRecordBean> updateReadProgress(final String bookmarkId, final double progress,
+	public InstaRecordBean updateReadProgress(final String bookmarkId, final double progress,
 			final String progressTimestamp) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL)
 				.path("/api/1/bookmarks/update_read_progress");
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmarkId);
-		postData.add("progress", progress);
-		postData.add("progressTimestamp", progressTimestamp);
+		postData.add("progress", Double.toString(progress));
+		postData.add("progress_timestamp", progressTimestamp);
 
 		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class, postData));
-		return instaRecordBeans;
+		return instaRecordBeans.get(0);
 	}
 
 	/**

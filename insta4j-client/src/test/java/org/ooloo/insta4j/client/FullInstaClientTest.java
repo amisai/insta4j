@@ -184,4 +184,21 @@ public class FullInstaClientTest {
 			count++;
 		}
 	}
+	
+	@Test
+	public void testUpdateReadProgress(){
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		List<InstaRecordBean> folders = client.listFolders();
+		Assert.assertNotNull(folders);
+		Assert.assertFalse(folders.isEmpty());
+		InstaRecordBean firstFolder = folders.get(0);
+		InstaRecordBean initBookmark = client.addBookmark("http://news.ycombinator.com/", "ProgressTest", firstFolder.folder_id, false);
+		Assert.assertNotNull(initBookmark);
+		Assert.assertNotNull(initBookmark.bookmark_id);
+		double initProgress = initBookmark.progress;
+		long initialTimestamp = initBookmark.progress_timestamp;
+	
+		InstaRecordBean updatedRecord = client.updateReadProgress(initBookmark.bookmark_id, Double.valueOf(1.0-initBookmark.progress), Long.toString(initialTimestamp+5L));
+		Assert.assertEquals(1.0, updatedRecord.progress+initBookmark.progress,0.01);
+	}
 }
