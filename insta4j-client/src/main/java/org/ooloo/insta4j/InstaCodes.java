@@ -3,7 +3,7 @@ package org.ooloo.insta4j;
 import org.ooloo.insta4j.client.InvalidCredentialsException;
 import org.ooloo.insta4j.client.ResourceExistsException;
 
-public class InstaError {
+public class InstaCodes {
 
 	/**
 	 * Base interface for statuses used in responses.
