@@ -8,20 +8,20 @@ public class InstaCodes {
 	/**
 	 * Base interface for statuses used in responses.
 	 */
-	public interface ErrorType {
+	public interface CodeType {
 		/**
 		 * Get the associated status code
 		 *
 		 * @return the status code
 		 */
-		public int getErrorCode();
+		public int getCode();
 
 		/**
 		 * Get the class of status code
 		 *
 		 * @return the class of status code
 		 */
-		public Error.Family getFamily();
+		public Code.Family getFamily();
 
 		/**
 		 * Get the reason phrase
@@ -31,8 +31,7 @@ public class InstaCodes {
 		public String getReasonPhrase();
 	}
 
-	//TODO: give enums a more meanenful names?
-	public enum Error implements ErrorType {
+	public enum Code implements CodeType {
 		/**
 		 * http codes
 		 */
@@ -101,20 +100,20 @@ public class InstaCodes {
 			OTHER
 		}
 
-		Error(final int statusCode, final String reasonPhrase, final Class<? extends RuntimeException> exceptionClass) {
-			this.code = statusCode;
+		Code(final int code, final String reasonPhrase, final Class<? extends RuntimeException> exceptionClass) {
+			this.code = code;
 			this.reason = reasonPhrase;
 			this.exceptionClass = exceptionClass;
 
-			if (statusCode >= 200 || statusCode <= 201) {
+			if (code >= 200 || code <= 201) {
 				this.family = Family.SUCCESSFUL;
-			} else if (statusCode >= 400 || statusCode <= 500) {
+			} else if (code >= 400 || code <= 500) {
 				this.family = Family.HTTP_ERROR;
-			} else if (statusCode >= 1040 || statusCode <= 1045) {
+			} else if (code >= 1040 || code <= 1045) {
 				this.family = Family.GENERAL_ERROR;
-			} else if (statusCode >= 1220 || statusCode <= 1246) {
+			} else if (code >= 1220 || code <= 1246) {
 				this.family = Family.BOOKMARK_ERROR;
-			} else if (statusCode >= 1250 || statusCode <= 1252) {
+			} else if (code >= 1250 || code <= 1252) {
 				this.family = Family.FOLDER_ERROR;
 			} else {
 				this.family = Family.OTHER;
@@ -133,9 +132,9 @@ public class InstaCodes {
 		/**
 		 * Get the associated status code
 		 *
-		 * @return the Error code
+		 * @return the Code code
 		 */
-		public int getErrorCode() {
+		public int getCode() {
 			return code;
 		}
 
@@ -152,7 +151,7 @@ public class InstaCodes {
 		 * Get the associated Exception class
 		 * if null no exception needs to be raised.
 		 *
-		 * @return the Error code
+		 * @return the Code code
 		 */
 		public Class<? extends RuntimeException> getExceptionClass() {
 			return exceptionClass;
@@ -169,20 +168,18 @@ public class InstaCodes {
 		}
 
 		/**
-		 * Convert a numerical error code into the corresponding Error
+		 * Convert a numerical error code into the corresponding Code
 		 *
-		 * @param errorCode the numerical error code
-		 * @return the matching Error or null is no matching Error is defined
+		 * @param code the numerical error code
+		 * @return the matching Code or null is no matching Code is defined
 		 */
-		public static Error fromErrorCode(final int errorCode) {
-			for (final Error error : Error.values()) {
-				if (error.code == errorCode) {
+		public static Code fromCode(final int code) {
+			for (final Code error : Code.values()) {
+				if (error.code == code) {
 					return error;
 				}
 			}
 			return null;
 		}
 	}
-
-
 }
