@@ -243,7 +243,8 @@ public class FullInstaClientTest {
 		Assert.assertFalse(folders.isEmpty());
 		final InstaRecordBean firstFolder = folders.get(0);
 		final InstaRecordBean initBookmark = client
-				.addBookmark("http://www.nytimes.com/pages/todayspaper/index.html?src=hp1-0-P#nytfrontpage", "DeleteBookmarkTest", firstFolder.folder_id, false);
+				.addBookmark("http://www.nytimes.com/pages/todayspaper/index.html?src=hp1-0-P#nytfrontpage",
+						"DeleteBookmarkTest", firstFolder.folder_id, false);
 		Assert.assertTrue(client.deleteBookmark(initBookmark.bookmark_id));
 	}
 
@@ -291,15 +292,16 @@ public class FullInstaClientTest {
 	 */
 
 	@Test
-	@Ignore
-	public void shouldArchiveBookmark() {
+	public void shouldArchiveAndUnarchiveBookmark() {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
 		final List<InstaRecordBean> folders = client.listFolders();
+		Assert.assertTrue(folders.iterator().hasNext());
 		final InstaRecordBean firstFolder = folders.iterator().next();
 		final InstaRecordBean initBookmark = client
-				.addBookmark("http://news.ycombinator.com/", "ProgressTest", firstFolder.folder_id, false);
+				.addBookmark("http://news.ycombinator.com/", "ArchiveTest", firstFolder.folder_id, false);
 		final InstaRecordBean archivedBookmark = client.archiveBookmark(initBookmark.bookmark_id);
-		//Assert.assertTrue(archivedBookmark.);
-		//Assert.assertFalse(client.unstarBookmark(initBookmark.bookmark_id).starred);
+		Assert.assertNotNull(archivedBookmark);
+		final InstaRecordBean unarchivedBookmark = client.unarchiveBookmark(initBookmark.bookmark_id);
+		Assert.assertNotNull(unarchivedBookmark);
 	}
 }
