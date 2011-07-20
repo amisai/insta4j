@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ietf.jgss.Oid;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.ooloo.insta4j.jaxb.InstaRecordBean;
 
@@ -200,5 +201,17 @@ public class FullInstaClientTest {
 	
 		InstaRecordBean updatedRecord = client.updateReadProgress(initBookmark.bookmark_id, Double.valueOf(1.0-initBookmark.progress), Long.toString(initialTimestamp+5L));
 		Assert.assertEquals(1.0, updatedRecord.progress+initBookmark.progress,0.01);
+	}
+	
+	@Test
+	@Ignore
+	public void testDeleteBookmark(){
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		List<InstaRecordBean> folders = client.listFolders();
+		Assert.assertNotNull(folders);
+		Assert.assertFalse(folders.isEmpty());
+		InstaRecordBean firstFolder = folders.get(0);
+		InstaRecordBean initBookmark = client.addBookmark("http://news.ycombinator.com/", "ProgressTest", firstFolder.folder_id, false);
+		Assert.assertTrue(client.deleteBookmark(initBookmark.bookmark_id));
 	}
 }

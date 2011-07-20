@@ -366,7 +366,7 @@ public class FullInstaClient {
 		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class, postData));
-		return (instaRecordBeans != null ? true : false);
+		return (instaRecordBeans.isEmpty()  ? true : false);
 	}
 
 	/**
