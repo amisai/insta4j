@@ -225,4 +225,14 @@ public class FullInstaClientTest {
 		Assert.assertTrue(staredBookmark.starred);
 		Assert.assertEquals(initBookmark.bookmark_id, staredBookmark.bookmark_id);
 	}
+	@Test
+	public void shouldUnStarBookmark(){
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		List<InstaRecordBean> folders = client.listFolders();
+		InstaRecordBean firstFolder = folders.get(0);
+		InstaRecordBean initBookmark = client.addBookmark("http://news.ycombinator.com/", "ProgressTest", firstFolder.folder_id, false);
+		InstaRecordBean staredBookmark = client.starBookmark(initBookmark.bookmark_id);
+		Assert.assertTrue(staredBookmark.starred);
+		Assert.assertFalse(client.unstarBookmark(initBookmark.bookmark_id).starred);
+	}
 }
