@@ -1,5 +1,6 @@
 package org.ooloo.insta4j.client;
 
+import com.sun.istack.NotNull;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
@@ -48,7 +49,6 @@ public class FullInstaClient {
 	private Stack<OAuthClientFilter> oAuthClientFilterStack = new Stack<OAuthClientFilter>();
 	private CopyOnWriteHashMap<String, Object> properties;
 
-
 	public Map<String, Object> getProperties() {
 		if (properties == null) {
 			properties = new CopyOnWriteHashMap<String, Object>();
@@ -85,8 +85,9 @@ public class FullInstaClient {
 		// maps json to Jaxb bean InstaRecordBean
 		config.getClasses().add(JAXBContextResolver.class);
 		client = Client.create(config);
-		//TODO: make this configurable.
-		client.addFilter(new LoggingFilter());
+		if (log.isDebugEnabled()) {
+			client.addFilter(new LoggingFilter());
+		}
 
 		// create a new OAuth client oAuthClientFilter passing the needed info
 		final OAuthClientFilter oAuthClientFilter = new OAuthClientFilter(client.getProviders(), new OAuthParameters()
@@ -144,7 +145,7 @@ public class FullInstaClient {
 	}
 
 
-	protected void authorized(final String token, final String tokenSecret) {
+	protected void authorized(@NotNull final String token, @NotNull final String tokenSecret) {
 		token(token);
 		tokenSecret(tokenSecret);
 		// remove the auth filter already registered either in the constructor or by this method.
@@ -199,7 +200,7 @@ public class FullInstaClient {
 	 * @throws RuntimeException			Is thrown authorization with oAuth failed, the message will be what Instapaper Full
 	 *                                     api returns in case of an error.
 	 */
-	public Map<String, String> authorize(final String username, final String password) {
+	public Map<String, String> authorize(@NotNull final String username, @NotNull final String password) {
 		final WebResource resource = client
 				.resource(UriBuilder.fromUri(INSTAPAPER_BASE_API_URL + "/api/1/oauth/access_token").build());
 		final MultivaluedMap postData = new MultivaluedMapImpl();
@@ -219,9 +220,8 @@ public class FullInstaClient {
 		// store user info locally
 		username(username);
 		password(password);
-		// signale the client that oAuth token and secret had been recived.
+		// signal the client that oAuth token and secret had been recived.
 		authorized(aouthTokenMap.get("oauth_token"), aouthTokenMap.get("oauth_token_secret"));
-
 		return aouthTokenMap;
 	}
 
@@ -287,19 +287,19 @@ public class FullInstaClient {
 	 * @return The modified bookmark on success.
 	 */
 
-	public List<InstaRecordBean> updateReadProgress(final String bookmarkId, final double progress,
-			final String progressTimestamp) {
+	public InstaRecordBean updateReadProgress(@NotNull final String bookmarkId, @NotNull final double progress,
+			@NotNull final long progressTimestamp) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL)
 				.path("/api/1/bookmarks/update_read_progress");
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmarkId);
-		postData.add("progress", progress);
-		postData.add("progressTimestamp", progressTimestamp);
+		postData.add("progress", Double.toString(progress));
+		postData.add("progress_timestamp", Long.toString(progressTimestamp));
 
 		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class, postData));
-		return instaRecordBeans;
+		return (instaRecordBeans.iterator().hasNext() ? instaRecordBeans.iterator().next() : null);
 	}
 
 	/**
@@ -445,7 +445,7 @@ public class FullInstaClient {
 	 * @param bookmark_id
 	 * @return The modified bookmark on success.
 	 */
-	public InstaRecordBean moveBookmark(final String bookmark_id, final String folder_id) {
+	public InstaRecordBean moveBookmark(@NotNull final String bookmark_id, @NotNull final String folder_id) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/move");
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmark_id);
@@ -465,7 +465,7 @@ public class FullInstaClient {
 	 * @return HTML with an HTTP 200 OK status, not the standard API output structures,
 	 *         or an HTTP 400 status code and a standard error structure if anything goes wrong.
 	 */
-	public String getBookmark(final String bookmark_id, final String folder_id) {
+	public String getBookmark(@NotNull final String bookmark_id, @NotNull final String folder_id) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/get_text");
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmark_id);
@@ -501,7 +501,7 @@ public class FullInstaClient {
 	 *         if the title isn’t unique among this user's folders.
 	 * @throws ResourceExistsException Is thrown if user already has a folder with this title
 	 */
-	public InstaRecordBean createFolder(final String title) {
+	public InstaRecordBean createFolder(@NotNull final String title) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/folders/add");
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		postData.add("title", title);
@@ -520,7 +520,7 @@ public class FullInstaClient {
 	 * @return True if the folder was deleted
 	 * @throws ResourceExistsException Is thrown If the folder could not be created with a reason in the message.
 	 */
-	public boolean deleteFolder(final String folder_id) {
+	public boolean deleteFolder(@NotNull final String folder_id) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/folders/delete");
 		final MultivaluedMap postData = new MultivaluedMapImpl();
 		postData.add("folder_id", folder_id);
@@ -568,15 +568,15 @@ public class FullInstaClient {
 	 *         {@link ClientResponse#status}
 	 */
 	private ClientResponse processResponse(final ClientResponse response) {
-		final InstaCodes.Code error = InstaCodes.Code.fromCode(response.getStatus());
-		if (error != null) {
-			final Class<? extends RuntimeException> exceptionClass = error.getExceptionClass();
+		final InstaCodes.Code code = InstaCodes.Code.fromCode(response.getStatus());
+		if (code != null) {
+			final Class<? extends RuntimeException> exceptionClass = code.getExceptionClass();
 			if (exceptionClass == null) {
 				return response;
 			} else {
 				// raise an exception
 				try {
-					throw exceptionClass.getConstructor(String.class).newInstance(error.getReasonPhrase());
+					throw exceptionClass.getConstructor(String.class).newInstance(code.getReasonPhrase());
 				} catch (InstantiationException e) {
 					//ignore
 				} catch (IllegalAccessException e) {
@@ -590,7 +590,7 @@ public class FullInstaClient {
 				throw new RuntimeException(response.getEntity(String.class));
 			}
 		} else {
-			// no error returned in the response everything must be ok.
+			// no code returned in the response everything must be ok.
 			return response;
 		}
 	}
@@ -608,20 +608,25 @@ public class FullInstaClient {
 	private List<InstaRecordBean> processJsonResponse(final ClientResponse response) {
 		final List<InstaRecordBean> recordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
 		});
-		final List<InstaRecordBean> errorRecords = this.getRecordByType(recordBeans, "error");
+		final List<InstaRecordBean> errorRecords = this.selectRecordsByType(recordBeans, RecordType.ERROR);
+		// Should only contain zero or 1 codeEnum record.
 		final InstaRecordBean errorRecord = (errorRecords.isEmpty() ? null : errorRecords.iterator().next());
-		final int code = (errorRecord != null ? Integer.parseInt(errorRecord.error_code) : response.getStatus());
-		final InstaCodes.Code error = InstaCodes.Code.fromCode(code);
-		if (error != null) {
-			final Class<? extends RuntimeException> exceptionClass = error.getExceptionClass();
+		if (errorRecord != null) {
+			final int code = (errorRecord != null ? Integer.parseInt(errorRecord.error_code) : response.getStatus());
+			final InstaCodes.Code codeEnum = InstaCodes.Code.fromCode(code);
+			final Class<? extends RuntimeException> exceptionClass =
+					codeEnum != null ? codeEnum.getExceptionClass() : null;
 			if (exceptionClass == null) {
+				// {@link InstaCodes.Code#exceptionClass} is null the code is a success code return the records
 				return recordBeans;
 			} else {
-				// raise an exception
+				/**
+				 * raise an exception based on {@link InstaCodes.Code#exceptionClass}
+				 */
 				try {
 					final String message = (errorRecord != null ?
 							String.format("[%s] %s", errorRecord.error_code, errorRecord.message) :
-							error.getReasonPhrase());
+							codeEnum.getReasonPhrase());
 
 					throw exceptionClass.getConstructor(String.class).newInstance(message);
 				} catch (InstantiationException e) {
@@ -633,7 +638,7 @@ public class FullInstaClient {
 				} catch (NoSuchMethodException e) {
 					//ignore
 				}
-
+				// failed to construct an exception throw a runtime exception based on the data in the response body.
 				throw new RuntimeException(response.getEntity(String.class));
 			}
 		} else {
@@ -641,11 +646,19 @@ public class FullInstaClient {
 		}
 	}
 
-	public static List<InstaRecordBean> getRecordByType(final List<InstaRecordBean> recordBeanList, final String type) {
+	/**
+	 * Selects {@link InstaRecordBean}s where <param>recordType</param> equals {@link InstaRecordBean#type}
+	 *
+	 * @param recordBeanList A collection of {@link InstaRecordBean}s
+	 * @param recordType	 A record type
+	 * @return A collection of {@link InstaRecordBean}s that match to recordType
+	 */
+	public static List<InstaRecordBean> selectRecordsByType(final List<InstaRecordBean> recordBeanList,
+			final RecordType recordType) {
 		final List<InstaRecordBean> recordBeans = new ArrayList<InstaRecordBean>();
-		for (final InstaRecordBean record : recordBeanList) {
-			if (type.equals(record.type)) {
-				recordBeans.add(record);
+		for (final InstaRecordBean recordBean : recordBeanList) {
+			if (recordType.type().equals(recordBean.type)) {
+				recordBeans.add(recordBean);
 			}
 		}
 		return recordBeans;

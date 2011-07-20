@@ -44,10 +44,9 @@ public class InstaRecordBean {
 	@XmlElement
 	public String hash;
 	@XmlElement
-	public int progress;
+	public double progress;
 	@XmlElement
 	public long progress_timestamp;
-
 	//[{"type":"error", "error_code":1240, "message":"Invalid URL specified"}]
 	@XmlElement
 	public String error_code;

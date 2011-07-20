@@ -4,8 +4,6 @@ import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.ietf.jgss.Oid;
-import org.junit.Before;
 import org.junit.Test;
 import org.ooloo.insta4j.jaxb.InstaRecordBean;
 
@@ -81,6 +79,7 @@ public class FullInstaClientTest {
 		Assert.assertNotNull(instaRecordBean.private_source);
 	}
 
+
 	@Test
 	public void shouldAddBookmarkWithCustomTitle() throws Exception {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
@@ -98,6 +97,30 @@ public class FullInstaClientTest {
 		Assert.assertNotNull(instaRecordBean.progress);
 		Assert.assertNotNull(instaRecordBean.private_source);
 	}
+
+
+	@Test
+	public void shouldAddBookmarkToFolder() throws Exception {
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		final InstaRecordBean folderRecord = client.createFolder(String.valueOf(System.currentTimeMillis()));
+		Assert.assertNotNull(folderRecord);
+		Assert.assertNotNull(folderRecord.folder_id);
+
+		final InstaRecordBean instaRecordBean = client
+				.addBookmark("http://news.ycombinator.com/", "My Hacker News", folderRecord.folder_id, Boolean.TRUE);
+		Assert.assertNotNull(instaRecordBean);
+		Assert.assertEquals("bookmark", instaRecordBean.type);
+		Assert.assertEquals("My Hacker News", instaRecordBean.title);
+		Assert.assertEquals("http://news.ycombinator.com/", instaRecordBean.url);
+		Assert.assertEquals("", instaRecordBean.description);
+		Assert.assertNotNull(instaRecordBean.hash);
+		Assert.assertNotNull(instaRecordBean.progress_timestamp);
+		Assert.assertNotNull(instaRecordBean.time);
+		Assert.assertNotNull(instaRecordBean.starred);
+		Assert.assertNotNull(instaRecordBean.progress);
+		Assert.assertNotNull(instaRecordBean.private_source);
+	}
+
 
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailToAddBookmarkToFolderThatDoesNotExist() throws Exception {
@@ -152,21 +175,45 @@ public class FullInstaClientTest {
 	@Test()
 	public void shouldGetBookmarks() throws Exception {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
-		final List<InstaRecordBean> folders = FullInstaClient.getRecordByType(client.listFolders(), "folder");
+		final List<InstaRecordBean> folders = FullInstaClient
+				.selectRecordsByType(client.listFolders(), RecordType.FOLDER);
 		Assert.assertNotNull(folders);
 		final InstaRecordBean folder = folders.iterator().next();
 		final List<InstaRecordBean> bookmarks = FullInstaClient
-				.getRecordByType(client.listBookmarks(null, null, null), "bookmark");
+				.selectRecordsByType(client.listBookmarks(null, null, null), RecordType.BOOKMARK);
 		Assert.assertNotNull(bookmarks);
 		final InstaRecordBean recordBean = bookmarks.iterator().next();
 		final String thebookmark = client.getBookmark(recordBean.bookmark_id, folder.folder_id);
 		Assert.assertNotNull(thebookmark);
+
+
+	}
+
+	@Test
+	public void shouldUpdateReadProgress() throws Exception {
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		final List<InstaRecordBean> folders = FullInstaClient
+				.selectRecordsByType(client.listFolders(), RecordType.FOLDER);
+		Assert.assertNotNull(folders);
+		final InstaRecordBean folder = folders.iterator().next();
+		final List<InstaRecordBean> bookmarks = FullInstaClient
+				.selectRecordsByType(client.listBookmarks(null, null, null), RecordType.BOOKMARK);
+		Assert.assertNotNull(bookmarks);
+		final InstaRecordBean bookmarkRecord = bookmarks.iterator().next();
+		Assert.assertNotNull(bookmarkRecord);
+		final long progressTimestamp = System.currentTimeMillis();
+		final InstaRecordBean bookararkRecord = client
+				.updateReadProgress(bookmarkRecord.bookmark_id, 0.5, progressTimestamp);
+		Assert.assertNotNull(bookararkRecord);
+		Assert.assertEquals(0.5D, bookararkRecord.progress);
+		Assert.assertEquals(progressTimestamp, bookararkRecord.progress_timestamp);
 	}
 
 	@Test
 	public void shouldReOrderFolders() {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
-		final List<InstaRecordBean> folders = FullInstaClient.getRecordByType(client.listFolders(), "folder");
+		final List<InstaRecordBean> folders = FullInstaClient
+				.selectRecordsByType(client.listFolders(), RecordType.FOLDER);
 		Assert.assertNotNull(folders);
 		final Map<Integer, Integer> folderPositionMap = new HashMap<Integer, Integer>();
 		int count = 0;
