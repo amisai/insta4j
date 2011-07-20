@@ -30,9 +30,9 @@ import java.util.*;
 import static java.util.Arrays.asList;
 
 /**
- * An Java client for Full API  http://www.instapaper.com/api/full
+ * An Java client for Full API  based on documentation at http://www.instapaper.com/api/full
  *
- * @author Denis Zontak
+ * @author dzontak@gmail.com
  * @author Sajit Kunnumkal
  */
 public class FullInstaClient {
@@ -366,7 +366,7 @@ public class FullInstaClient {
 		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.post(ClientResponse.class, postData));
-		return (instaRecordBeans.isEmpty()  ? true : false);
+		return (instaRecordBeans.iterator().hasNext() ? true : false);
 	}
 
 	/**

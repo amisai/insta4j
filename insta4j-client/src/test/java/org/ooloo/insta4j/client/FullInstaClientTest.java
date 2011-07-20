@@ -236,7 +236,6 @@ public class FullInstaClientTest {
 
 
 	@Test
-	@Ignore
 	public void testDeleteBookmark() {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
 		final List<InstaRecordBean> folders = client.listFolders();
@@ -244,7 +243,7 @@ public class FullInstaClientTest {
 		Assert.assertFalse(folders.isEmpty());
 		final InstaRecordBean firstFolder = folders.get(0);
 		final InstaRecordBean initBookmark = client
-				.addBookmark("http://news.ycombinator.com/", "ProgressTest", firstFolder.folder_id, false);
+				.addBookmark("http://www.nytimes.com/pages/todayspaper/index.html?src=hp1-0-P#nytfrontpage", "DeleteBookmarkTest", firstFolder.folder_id, false);
 		Assert.assertTrue(client.deleteBookmark(initBookmark.bookmark_id));
 	}
 
@@ -261,6 +260,18 @@ public class FullInstaClientTest {
 	}
 
 	@Test
+	public void shouldMoveBookmark() {
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		final List<InstaRecordBean> folders = client.listFolders();
+		final InstaRecordBean firstFolder = folders.iterator().next();
+		final InstaRecordBean initBookmark = client
+				.addBookmark("http://news.ycombinator.com/", "MoveBookmarkTest", firstFolder.folder_id, false);
+		final InstaRecordBean movedBookmark = client.moveBookmark(initBookmark.bookmark_id, firstFolder.folder_id);
+		Assert.assertNotNull(movedBookmark);
+		//TODO: how to test that the bookmark was moved to the top of the Unread folder
+	}
+
+	@Test
 	public void shouldUnStarBookmark() {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
 		final List<InstaRecordBean> folders = client.listFolders();
@@ -272,10 +283,12 @@ public class FullInstaClientTest {
 		Assert.assertFalse(client.unstarBookmark(initBookmark.bookmark_id).starred);
 	}
 
-	//FIXME shouldn't the Bean have a property to indicate archived state?
-	// How are we going to test if its archived?
-	// Current jason response does not contain  archived state.
-	// [{"type":"bookmark","bookmark_id":187033032,"url":"http:\/\/news.ycombinator.com\/","title":"ProgressTest","description":"","time":1311166421,"starred":"0","private_source":"","hash":"cfuJ4m8D","progress":"0","progress_timestamp":40}]
+	/**
+	 * // FIXME shouldn't the Bean have a property to indicate archived state?
+	 * How are we going to test if its archived?
+	 * Current jason response does not contain  archived state.
+	 * [{"type":"bookmark","bookmark_id":187033032,"url":"http:\/\/news.ycombinator.com\/","title":"ProgressTest","description":"","time":1311166421,"starred":"0","private_source":"","hash":"cfuJ4m8D","progress":"0","progress_timestamp":40}]
+	 */
 
 	@Test
 	@Ignore
