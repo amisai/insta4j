@@ -64,5 +64,10 @@ public class InstaRecordBean {
 	public boolean sync_to_mobile;
 	@XmlElement
 	public long position;
+	
+	@Override
+	public String toString(){
+		return "{folder_id:"+folder_id+",position:"+position+"}";
+	}
 
 }
