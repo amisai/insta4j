@@ -12,22 +12,17 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.sun.jersey.oauth.client.OAuthClientFilter;
 import com.sun.jersey.oauth.signature.OAuthParameters;
 import com.sun.jersey.oauth.signature.OAuthSecrets;
-import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.apache.log4j.Logger;
 import org.ooloo.insta4j.InstaCodes;
 import org.ooloo.insta4j.client.config.DefaultInstaClientConfig;
 import org.ooloo.insta4j.client.config.InstaClientConfig;
 import org.ooloo.insta4j.jaxb.InstaRecordBean;
 import org.ooloo.insta4j.jsonp.JAXBContextResolver;
-import org.springframework.beans.BeanUtils;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
@@ -492,7 +487,7 @@ public class FullInstaClient {
 	 */
 	public List<InstaRecordBean> listFolders() {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/folders/list");
-
+		//TODO: instapaper documentation suggests to always do a post, is get ok here.
 		return processJsonResponse(
 				resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON)
 						.get(ClientResponse.class));
@@ -535,27 +530,30 @@ public class FullInstaClient {
 						.post(ClientResponse.class, postData));
 		return (instaRecordBeans != null ? true : false);
 	}
+
 	/**
 	 * ReOrders the position of the folders
+	 *
 	 * @param folderPositionMap A <K,V> map where K = Folder Id and V = position
 	 * @return A list of the account’s user-created folders. This only includes organizational folders and does
 	 *         not include RSS-feed folders or starred-subscription folders, as the implementation of those is changing in the near future
-	 *
 	 */
-	public List<InstaRecordBean> setFolderOrder(Map<Integer,Integer> folderPositionMap){
+	public List<InstaRecordBean> setFolderOrder(final Map<Integer, Integer> folderPositionMap) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/folders/set_order");
 		final MultivaluedMap postData = new MultivaluedMapImpl();
-		StringBuffer dataBuffer = new StringBuffer();
-		Set<Integer> folderIds = folderPositionMap.keySet();
-		for(Integer folderId : folderIds){
-			dataBuffer.append(Integer.toString(folderId)+":"+Integer.toString(folderPositionMap.get(folderId))+",");
+		final StringBuilder stringBuilder = new StringBuilder();
+		final Set<Integer> folderIds = folderPositionMap.keySet();
+		for (final Integer folderId : folderIds) {
+			stringBuilder
+					.append(Integer.toString(folderId) + ":" + Integer.toString(folderPositionMap.get(folderId)) + ",");
 		}
-		String ordermap = StringUtils.trimTrailingCharacter(dataBuffer.toString(), ',');
-		log.debug(ordermap);
+		final String ordermap = StringUtils.trimTrailingCharacter(stringBuilder.toString(), ',');
+		if (log.isDebugEnabled()) {
+			log.debug(ordermap);
+		}
 		postData.add("order", ordermap);
-		return processJsonResponse(
-				resource.type(MediaType.APPLICATION_FORM_URLENCODED).
-				accept(MediaType.APPLICATION_JSON).post(ClientResponse.class,postData));
+		return processJsonResponse(resource.type(MediaType.APPLICATION_FORM_URLENCODED).
+				accept(MediaType.APPLICATION_JSON).post(ClientResponse.class, postData));
 
 	}
 
@@ -592,8 +590,8 @@ public class FullInstaClient {
 				throw new RuntimeException(response.getEntity(String.class));
 			}
 		} else {
-			throw new RuntimeException(String.format("Unknown error code %s [%s]", response.getStatus(),
-					response.getEntity(String.class)));
+			// no error returned in the response everything must be ok.
+			return response;
 		}
 	}
 
@@ -602,19 +600,18 @@ public class FullInstaClient {
 	 * {@link org.ooloo.insta4j.InstaCodes.Code#exceptionClass}
 	 *
 	 * @param response jersey client response
-	 * @return A collection of {@link InstaRecordBean}s if there is not error type retruned in the json response
-	 *         else throw and exception type assegned to {@link org.ooloo.insta4j.InstaCodes.Code#exceptionClass} associated to the
-	 *         Instapaper error code returned in the response if any
+	 * @return A collection of {@link InstaRecordBean}s if there is no error type retruned in the json response
+	 *         else throw and exception type assigned to {@link org.ooloo.insta4j.InstaCodes.Code#exceptionClass} associated
+	 *         to the Instapaper error code returned in the response if any
 	 */
 
 	private List<InstaRecordBean> processJsonResponse(final ClientResponse response) {
-
 		final List<InstaRecordBean> recordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
 		});
 		final List<InstaRecordBean> errorRecords = this.getRecordByType(recordBeans, "error");
-		final InstaRecordBean errorRecord = (errorRecords.iterator().hasNext()?errorRecords.iterator().next():null);
-		final int errorCode = (errorRecord != null ? Integer.parseInt(errorRecord.error_code) : response.getStatus());
-		final InstaCodes.Code error = InstaCodes.Code.fromCode(errorCode);
+		final InstaRecordBean errorRecord = (errorRecords.isEmpty() ? null : errorRecords.iterator().next());
+		final int code = (errorRecord != null ? Integer.parseInt(errorRecord.error_code) : response.getStatus());
+		final InstaCodes.Code error = InstaCodes.Code.fromCode(code);
 		if (error != null) {
 			final Class<? extends RuntimeException> exceptionClass = error.getExceptionClass();
 			if (exceptionClass == null) {
@@ -640,8 +637,7 @@ public class FullInstaClient {
 				throw new RuntimeException(response.getEntity(String.class));
 			}
 		} else {
-			throw new RuntimeException(String.format("Unknown error code %s [%s]", response.getStatus(),
-					response.getEntity(String.class)));
+			return recordBeans;
 		}
 	}
 
@@ -654,6 +650,4 @@ public class FullInstaClient {
 		}
 		return recordBeans;
 	}
-
-
 }
