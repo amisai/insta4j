@@ -235,4 +235,17 @@ public class FullInstaClientTest {
 		Assert.assertTrue(staredBookmark.starred);
 		Assert.assertFalse(client.unstarBookmark(initBookmark.bookmark_id).starred);
 	}
+	//FIXME shouldn't the Bean have a property to indicate archived state?
+	// How are we going to test if its archived? 
+	@Test
+	@Ignore
+	public void shouldArchiveBookmark(){
+		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
+		List<InstaRecordBean> folders = client.listFolders();
+		InstaRecordBean firstFolder = folders.get(0);
+		InstaRecordBean initBookmark = client.addBookmark("http://news.ycombinator.com/", "ProgressTest", firstFolder.folder_id, false);
+		InstaRecordBean archivedBookmark = client.archiveBookmark(initBookmark.bookmark_id);
+		//Assert.assertTrue(archivedBookmark.);
+		//Assert.assertFalse(client.unstarBookmark(initBookmark.bookmark_id).starred);
+	}
 }
