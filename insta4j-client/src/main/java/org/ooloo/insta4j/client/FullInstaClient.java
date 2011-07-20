@@ -12,22 +12,17 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.sun.jersey.oauth.client.OAuthClientFilter;
 import com.sun.jersey.oauth.signature.OAuthParameters;
 import com.sun.jersey.oauth.signature.OAuthSecrets;
-import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.apache.log4j.Logger;
-import org.ooloo.insta4j.InstaError;
+import org.ooloo.insta4j.InstaCodes;
 import org.ooloo.insta4j.client.config.DefaultInstaClientConfig;
 import org.ooloo.insta4j.client.config.InstaClientConfig;
 import org.ooloo.insta4j.jaxb.InstaRecordBean;
 import org.ooloo.insta4j.jsonp.JAXBContextResolver;
-import org.springframework.beans.BeanUtils;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
@@ -538,15 +533,15 @@ public class FullInstaClient {
 
 	/**
 	 * Handle http error codes and throw and exception assinged in the enumeration
-	 * {@link InstaError.Error#exceptionClass}
+	 * {@link org.ooloo.insta4j.InstaCodes.Code#exceptionClass}
 	 *
 	 * @param response The jersey client response
-	 * @return Back the response if If the the status Belongs to {@link InstaError.Error.Family#SUCCESSFUL}
-	 *         else throw and exception type assegned to {@link InstaError.Error#exceptionClass} associated to the
+	 * @return Back the response if If the the status Belongs to {@link org.ooloo.insta4j.InstaCodes.Code.Family#SUCCESSFUL}
+	 *         else throw and exception type assegned to {@link org.ooloo.insta4j.InstaCodes.Code#exceptionClass} associated to the
 	 *         {@link ClientResponse#status}
 	 */
 	private ClientResponse processResponse(final ClientResponse response) {
-		final InstaError.Error error = InstaError.Error.fromErrorCode(response.getStatus());
+		final InstaCodes.Code error = InstaCodes.Code.fromCode(response.getStatus());
 		if (error != null) {
 			final Class<? extends RuntimeException> exceptionClass = error.getExceptionClass();
 			if (exceptionClass == null) {
@@ -575,11 +570,11 @@ public class FullInstaClient {
 
 	/**
 	 * Handle Instapaper error codes and throw and exception assinged in the enumeration
-	 * {@link InstaError.Error#exceptionClass}
+	 * {@link org.ooloo.insta4j.InstaCodes.Code#exceptionClass}
 	 *
 	 * @param response jersey client response
 	 * @return A collection of {@link InstaRecordBean}s if there is not error type retruned in the json response
-	 *         else throw and exception type assegned to {@link InstaError.Error#exceptionClass} associated to the
+	 *         else throw and exception type assegned to {@link org.ooloo.insta4j.InstaCodes.Code#exceptionClass} associated to the
 	 *         Instapaper error code returned in the response if any
 	 */
 
@@ -590,7 +585,7 @@ public class FullInstaClient {
 		final List<InstaRecordBean> errorRecords = this.getRecordByType(recordBeans, "error");
 		final InstaRecordBean errorRecord = (errorRecords.iterator().hasNext()?errorRecords.iterator().next():null);
 		final int errorCode = (errorRecord != null ? Integer.parseInt(errorRecord.error_code) : response.getStatus());
-		final InstaError.Error error = InstaError.Error.fromErrorCode(errorCode);
+		final InstaCodes.Code error = InstaCodes.Code.fromCode(errorCode);
 		if (error != null) {
 			final Class<? extends RuntimeException> exceptionClass = error.getExceptionClass();
 			if (exceptionClass == null) {

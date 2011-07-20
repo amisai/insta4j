@@ -92,7 +92,6 @@ public class FullInstaClientTest {
 		Assert.assertNotNull(instaRecordBean.private_source);
 	}
 
-
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailToAddBookmarkToFolderThatDoesNotExist() throws Exception {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
@@ -113,7 +112,6 @@ public class FullInstaClientTest {
 		Assert.assertTrue(client.deleteFolder(instaRecordBean.folder_id));
 
 	}
-
 
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldDeleteFolderThatDoesNotExist() throws Exception {
