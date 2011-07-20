@@ -18,6 +18,7 @@ import java.util.Map;
 public class FullInstaClientTest {
 
 	private static final Log log = LogFactory.getLog(FullInstaClientTest.class);
+
 	@Test
 	public void listBookmarksTest() {
 
@@ -161,28 +162,26 @@ public class FullInstaClientTest {
 		final String thebookmark = client.getBookmark(recordBean.bookmark_id, folder.folder_id);
 		Assert.assertNotNull(thebookmark);
 	}
-	
+
 	@Test
-	public void shouldReOrderFolders(){
+	public void shouldReOrderFolders() {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
 		final List<InstaRecordBean> folders = FullInstaClient.getRecordByType(client.listFolders(), "folder");
 		Assert.assertNotNull(folders);
-		Map<Integer,Integer> folderPositionMap = new HashMap<Integer,Integer>();
-		int count=0;
-		for(InstaRecordBean folder : folders){
-			folderPositionMap.put(Integer.valueOf(folder.folder_id), folders.size()-count);
+		final Map<Integer, Integer> folderPositionMap = new HashMap<Integer, Integer>();
+		int count = 0;
+		for (final InstaRecordBean folder : folders) {
+			folderPositionMap.put(Integer.valueOf(folder.folder_id), folders.size() - count);
 			count++;
 		}
 		final List<InstaRecordBean> reOrderedList = client.setFolderOrder(folderPositionMap);
 		count = 0;
-		for(InstaRecordBean reOrderFolder : reOrderedList){
+		for (final InstaRecordBean reOrderFolder : reOrderedList) {
 			log.debug(reOrderFolder);
-			long position = folderPositionMap.get(Integer.valueOf(reOrderFolder.folder_id));
+			final long position = folderPositionMap.get(Integer.valueOf(reOrderFolder.folder_id));
 			log.debug("Position in Map of folder " + reOrderFolder.folder_id + " = " + position);
 			Assert.assertEquals(reOrderFolder.position, position);
 			count++;
 		}
 	}
-
-
 }
