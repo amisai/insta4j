@@ -233,66 +233,59 @@ public class FullInstaClientTest {
 			count++;
 		}
 	}
-	
-	@Test
-	public void testUpdateReadProgress(){
-		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
-		List<InstaRecordBean> folders = client.listFolders();
-		Assert.assertNotNull(folders);
-		Assert.assertFalse(folders.isEmpty());
-		InstaRecordBean firstFolder = folders.get(0);
-		InstaRecordBean initBookmark = client.addBookmark("http://news.ycombinator.com/", "ProgressTest", firstFolder.folder_id, false);
-		Assert.assertNotNull(initBookmark);
-		Assert.assertNotNull(initBookmark.bookmark_id);
-		double initProgress = initBookmark.progress;
-		long initialTimestamp = initBookmark.progress_timestamp;
-	
-		InstaRecordBean updatedRecord = client.updateReadProgress(initBookmark.bookmark_id, Double.valueOf(1.0-initBookmark.progress), Long.toString(initialTimestamp+5L));
-		Assert.assertEquals(1.0, updatedRecord.progress+initBookmark.progress,0.01);
-	}
-	
+
+
 	@Test
 	@Ignore
-	public void testDeleteBookmark(){
+	public void testDeleteBookmark() {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
-		List<InstaRecordBean> folders = client.listFolders();
+		final List<InstaRecordBean> folders = client.listFolders();
 		Assert.assertNotNull(folders);
 		Assert.assertFalse(folders.isEmpty());
-		InstaRecordBean firstFolder = folders.get(0);
-		InstaRecordBean initBookmark = client.addBookmark("http://news.ycombinator.com/", "ProgressTest", firstFolder.folder_id, false);
+		final InstaRecordBean firstFolder = folders.get(0);
+		final InstaRecordBean initBookmark = client
+				.addBookmark("http://news.ycombinator.com/", "ProgressTest", firstFolder.folder_id, false);
 		Assert.assertTrue(client.deleteBookmark(initBookmark.bookmark_id));
 	}
-	
+
 	@Test
-	public void shouldStarBookmark(){
+	public void shouldStarBookmark() {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
-		List<InstaRecordBean> folders = client.listFolders();
-		InstaRecordBean firstFolder = folders.get(0);
-		InstaRecordBean initBookmark = client.addBookmark("http://news.ycombinator.com/", "ProgressTest", firstFolder.folder_id, false);
-		InstaRecordBean staredBookmark = client.starBookmark(initBookmark.bookmark_id);
+		final List<InstaRecordBean> folders = client.listFolders();
+		final InstaRecordBean firstFolder = folders.get(0);
+		final InstaRecordBean initBookmark = client
+				.addBookmark("http://news.ycombinator.com/", "ProgressTest", firstFolder.folder_id, false);
+		final InstaRecordBean staredBookmark = client.starBookmark(initBookmark.bookmark_id);
 		Assert.assertTrue(staredBookmark.starred);
 		Assert.assertEquals(initBookmark.bookmark_id, staredBookmark.bookmark_id);
 	}
+
 	@Test
-	public void shouldUnStarBookmark(){
+	public void shouldUnStarBookmark() {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
-		List<InstaRecordBean> folders = client.listFolders();
-		InstaRecordBean firstFolder = folders.get(0);
-		InstaRecordBean initBookmark = client.addBookmark("http://news.ycombinator.com/", "ProgressTest", firstFolder.folder_id, false);
-		InstaRecordBean staredBookmark = client.starBookmark(initBookmark.bookmark_id);
+		final List<InstaRecordBean> folders = client.listFolders();
+		final InstaRecordBean firstFolder = folders.get(0);
+		final InstaRecordBean initBookmark = client
+				.addBookmark("http://news.ycombinator.com/", "ProgressTest", firstFolder.folder_id, false);
+		final InstaRecordBean staredBookmark = client.starBookmark(initBookmark.bookmark_id);
 		Assert.assertTrue(staredBookmark.starred);
 		Assert.assertFalse(client.unstarBookmark(initBookmark.bookmark_id).starred);
 	}
+
 	//FIXME shouldn't the Bean have a property to indicate archived state?
-	// How are we going to test if its archived? 
+	// How are we going to test if its archived?
+	// Current jason response does not contain  archived state.
+	// [{"type":"bookmark","bookmark_id":187033032,"url":"http:\/\/news.ycombinator.com\/","title":"ProgressTest","description":"","time":1311166421,"starred":"0","private_source":"","hash":"cfuJ4m8D","progress":"0","progress_timestamp":40}]
+
 	@Test
 	@Ignore
-	public void shouldArchiveBookmark(){
+	public void shouldArchiveBookmark() {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
-		List<InstaRecordBean> folders = client.listFolders();
-		InstaRecordBean firstFolder = folders.get(0);
-		InstaRecordBean initBookmark = client.addBookmark("http://news.ycombinator.com/", "ProgressTest", firstFolder.folder_id, false);
-		InstaRecordBean archivedBookmark = client.archiveBookmark(initBookmark.bookmark_id);
+		final List<InstaRecordBean> folders = client.listFolders();
+		final InstaRecordBean firstFolder = folders.iterator().next();
+		final InstaRecordBean initBookmark = client
+				.addBookmark("http://news.ycombinator.com/", "ProgressTest", firstFolder.folder_id, false);
+		final InstaRecordBean archivedBookmark = client.archiveBookmark(initBookmark.bookmark_id);
 		//Assert.assertTrue(archivedBookmark.);
 		//Assert.assertFalse(client.unstarBookmark(initBookmark.bookmark_id).starred);
 	}
