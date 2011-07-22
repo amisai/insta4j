@@ -41,7 +41,6 @@ public class FullInstaClient {
 	private static final Logger log = Logger.getLogger(FullInstaClient.class);
 	private static final String INSTAPAPER_BASE_API_URL = "https://www.instapaper.com";
 	private final Client client;
-	private final ClientConfig config = new DefaultClientConfig();
 	private final InstaClientConfig instaConfig;
 	private String _token = null;
 	private String _tokenSecret = null;
@@ -63,13 +62,13 @@ public class FullInstaClient {
 		this(null, null, instaClientConfig);
 	}
 
-	public FullInstaClient(final String username, final String password) {
+	public FullInstaClient(@Nullable final String username, @Nullable final String password) {
 		this(username, password, new DefaultInstaClientConfig());
 	}
 
 
 	/**
-	 * Sets up the Jersy  {@link Client} with {@JAXBContextResolver} and  {@link OAuthClientFilter}
+	 * Sets up the Jersy  {@link Client} with {@link JAXBContextResolver} and  {@link OAuthClientFilter}
 	 * Gets an OAuth access token for a user via {@link #authorize(String, String)}
 	 *
 	 * @param username		  Instapaper username
@@ -82,6 +81,7 @@ public class FullInstaClient {
 			final InstaClientConfig instaClientConfig) {
 		this.instaConfig = instaClientConfig;
 		// maps json to Jaxb bean InstaRecordBean
+		final ClientConfig config = new DefaultClientConfig();
 		config.getClasses().add(JAXBContextResolver.class);
 		client = Client.create(config);
 		if (log.isDebugEnabled()) {
@@ -193,7 +193,7 @@ public class FullInstaClient {
 	public Map<String, String> authorize(@NotNull final String username, @NotNull final String password) {
 		final WebResource resource = client
 				.resource(UriBuilder.fromUri(INSTAPAPER_BASE_API_URL + "/api/1/oauth/access_token").build());
-		final MultivaluedMap postData = new MultivaluedMapImpl();
+		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		postData.add("x_auth_username", username);
 		postData.add("x_auth_password", password);
 		postData.add("x_auth_mode", "client_auth");
@@ -245,7 +245,7 @@ public class FullInstaClient {
 	 */
 	public List<InstaRecordBean> listBookmarks(final String limit, final String folderId, final String... bookmarkId) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/list");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
+		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		if (limit != null) {
 			postData.add("limit", limit);
 		}
@@ -280,7 +280,7 @@ public class FullInstaClient {
 			@NotNull final long progressTimestamp) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL)
 				.path("/api/1/bookmarks/update_read_progress");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
+		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmarkId);
 		postData.add("progress", Double.toString(progress));
 		postData.add("progress_timestamp", Long.toString(progressTimestamp));
@@ -322,7 +322,7 @@ public class FullInstaClient {
 	public InstaRecordBean addBookmark(final String url, final String title, final String folder_id,
 			final Boolean resolve_final_url) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/add");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
+		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		postData.add("url", url);
 
 		if (title != null) {
@@ -349,7 +349,7 @@ public class FullInstaClient {
 	 */
 	public boolean deleteBookmark(final String bookmark_id) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/delete");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
+		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmark_id);
 
 		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
@@ -366,7 +366,7 @@ public class FullInstaClient {
 	 */
 	public InstaRecordBean starBookmark(final String bookmark_id) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/star");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
+		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmark_id);
 
 		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
@@ -383,7 +383,7 @@ public class FullInstaClient {
 	 */
 	public InstaRecordBean unstarBookmark(final String bookmark_id) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/unstar");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
+		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmark_id);
 
 		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
@@ -400,7 +400,7 @@ public class FullInstaClient {
 	 */
 	public InstaRecordBean archiveBookmark(final String bookmark_id) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/archive");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
+		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmark_id);
 
 		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
@@ -417,7 +417,7 @@ public class FullInstaClient {
 	 */
 	public InstaRecordBean unarchiveBookmark(final String bookmark_id) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/unarchive");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
+		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmark_id);
 
 		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
@@ -437,7 +437,7 @@ public class FullInstaClient {
 	 */
 	public InstaRecordBean moveBookmark(@NotNull final String bookmark_id, @NotNull final String folder_id) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/move");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
+		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmark_id);
 		postData.add("folder_id", folder_id);
 
@@ -457,7 +457,7 @@ public class FullInstaClient {
 	 */
 	public String getBookmark(@NotNull final String bookmark_id, @NotNull final String folder_id) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/get_text");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
+		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmark_id);
 		postData.add("folder_id", folder_id);
 
@@ -493,7 +493,7 @@ public class FullInstaClient {
 	 */
 	public InstaRecordBean createFolder(@NotNull final String title) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/folders/add");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
+		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		postData.add("title", title);
 
 		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
@@ -512,7 +512,7 @@ public class FullInstaClient {
 	 */
 	public boolean deleteFolder(@NotNull final String folder_id) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/folders/delete");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
+		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		postData.add("folder_id", folder_id);
 
 		final List<InstaRecordBean> instaRecordBeans = processJsonResponse(
@@ -530,7 +530,7 @@ public class FullInstaClient {
 	 */
 	public List<InstaRecordBean> setFolderOrder(final Map<Integer, Integer> folderPositionMap) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/folders/set_order");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
+		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		final StringBuilder stringBuilder = new StringBuilder();
 		final Set<Integer> folderIds = folderPositionMap.keySet();
 		for (final Integer folderId : folderIds) {
