@@ -1,6 +1,6 @@
 package org.ooloo.insta4j;
 
-import org.ooloo.insta4j.client.InvalidCredentialsException;
+import org.ooloo.insta4j.client.InstaClientException;
 import org.ooloo.insta4j.client.ResourceExistsException;
 
 public class InstaCodes {
@@ -38,53 +38,53 @@ public class InstaCodes {
 		_200(200, "OK", null),
 		_201(201, "Created", null),
 		_400(400, "Bad request or exceeded the rate limit. Probably missing a required parameter, such as url",
-				RuntimeException.class),
+				InstaClientException.class),
 		_403(403, "Invalid username or password", InvalidCredentialsException.class),
 		_401(401, "Invalid xAuth credentials", InvalidCredentialsException.class),
-		_500(500, "The service encountered an error. Please try again later", RuntimeException.class),
+		_500(500, "The service encountered an error. Please try again later", InstaClientException.class),
 		/**
 		 * GeneralError
 		 */
-		_1040(1040, "Rate-limit exceeded", RuntimeException.class),
-		_1041(1041, "Subscription account required", RuntimeException.class),
-		_1042(1042, "Application is suspended", RuntimeException.class),
+		_1040(1040, "Rate-limit exceeded", InstaClientException.class),
+		_1041(1041, "Subscription account required", InstaClientException.class),
+		_1042(1042, "Application is suspended", InstaClientException.class),
 
 		/**
 		 * BookmarkError
 		 */
 
 		// 1220: Domain requires full content to be supplied
-		_1220(1220, "Domain requires full content to be supplied", RuntimeException.class),
+		_1220(1220, "Domain requires full content to be supplied", InstaClientException.class),
 		// 1221: Domain has opted out of Instapaper compatibility
-		_1221(1221, "Domain has opted out of Instapaper compatibility", RuntimeException.class),
+		_1221(1221, "Domain has opted out of Instapaper compatibility", InstaClientException.class),
 		// 1240: Invalid URL specified
-		_1240(1240, "Invalid URL specified", RuntimeException.class),
+		_1240(1240, "Invalid URL specified", InstaClientException.class),
 		// 1241: Invalid or missing bookmark_id
-		_1241(1241, "Invalid or missing bookmark_id", RuntimeException.class),
+		_1241(1241, "Invalid or missing bookmark_id", InstaClientException.class),
 		// 1242: Invalid or missing folder_id
 		_1242(1242, "Invalid or missing folder_id", IllegalArgumentException.class),
 		// 1243: Invalid or missing progress
-		_1243(1243, "Invalid or missing progress", RuntimeException.class),
+		_1243(1243, "Invalid or missing progress", InstaClientException.class),
 		// 1244: Invalid or missing progress_timestamp
-		_1244(1244, "Invalid or missing progress_timestamp", RuntimeException.class),
+		_1244(1244, "Invalid or missing progress_timestamp", InstaClientException.class),
 		// 1245: Private bookmarks require supplied content
-		_1245(1245, "Private bookmarks require supplied content", RuntimeException.class),
+		_1245(1245, "Private bookmarks require supplied content", InstaClientException.class),
 		// 1246: Unexpected error when saving bookmark
-		_1246(1246, "Unexpected error when saving bookmark", RuntimeException.class),
+		_1246(1246, "Unexpected error when saving bookmark", InstaClientException.class),
 
 		/**
 		 * FolderError
 		 */
 		//1250: Invalid or missing title
-		_1250(1250, "Invalid or missing title", RuntimeException.class),
+		_1250(1250, "Invalid or missing title", InstaClientException.class),
 		//1251: User already has a folder with this title
 		_1251(1251, "User already has a folder with this title", ResourceExistsException.class),
 		//1252: Cannot add bookmarks to this folder
-		_1252(1252, "Cannot add bookmarks to this folder", RuntimeException.class);
+		_1252(1252, "Cannot add bookmarks to this folder", InstaClientException.class);
 
 		private final int code;
 		private final String reason;
-		private Family family;
+		private final Family family;
 		private final Class<? extends RuntimeException> exceptionClass;
 
 		/**

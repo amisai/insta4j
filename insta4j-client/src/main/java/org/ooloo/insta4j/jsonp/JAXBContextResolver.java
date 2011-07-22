@@ -53,18 +53,17 @@ import java.util.Set;
 
 /**
  * Resloves mapping from json <-> JaxB
+ *
  * @author dzontak@gmail.com
  */
 @Provider
 public final class JAXBContextResolver implements ContextResolver<JAXBContext> {
 
 	private final JAXBContext context;
-
 	private final Set<Class> types;
 
-	private final Class[] cTypes = {InstaRecordBean.class};
-
 	public JAXBContextResolver() throws Exception {
+		final Class[] cTypes = {InstaRecordBean.class};
 		this.types = new HashSet(Arrays.asList(cTypes));
 		this.context = new JSONJAXBContext(JSONConfiguration.natural().build(), cTypes);
 	}

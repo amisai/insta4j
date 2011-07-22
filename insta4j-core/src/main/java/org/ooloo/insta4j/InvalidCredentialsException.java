@@ -1,4 +1,4 @@
-package org.ooloo.insta4j.client;
+package org.ooloo.insta4j;
 
 
 /**

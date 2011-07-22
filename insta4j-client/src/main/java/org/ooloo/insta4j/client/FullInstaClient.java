@@ -1,6 +1,7 @@
 package org.ooloo.insta4j.client;
 
 import com.sun.istack.NotNull;
+import com.sun.istack.Nullable;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
@@ -39,14 +40,12 @@ public class FullInstaClient {
 
 	private static final Logger log = Logger.getLogger(FullInstaClient.class);
 	private static final String INSTAPAPER_BASE_API_URL = "https://www.instapaper.com";
-	private Client client;
+	private final Client client;
 	private final ClientConfig config = new DefaultClientConfig();
 	private final InstaClientConfig instaConfig;
-	private String _username;
-	private String _password;
 	private String _token = null;
 	private String _tokenSecret = null;
-	private Stack<OAuthClientFilter> oAuthClientFilterStack = new Stack<OAuthClientFilter>();
+	private final Stack<OAuthClientFilter> oAuthClientFilterStack = new Stack<OAuthClientFilter>();
 	private CopyOnWriteHashMap<String, Object> properties;
 
 	public Map<String, Object> getProperties() {
@@ -76,11 +75,11 @@ public class FullInstaClient {
 	 * @param username		  Instapaper username
 	 * @param password		  Optional Instapaper password
 	 * @param instaClientConfig The client configuration.
-	 * @throws InvalidCredentialsException If username and password are not valid.
+	 * @throws org.ooloo.insta4j.InvalidCredentialsException
+	 *          If username and password are not valid.
 	 */
-	public FullInstaClient(final String username, final String password, final InstaClientConfig instaClientConfig) {
-		this.username(username);
-		this.password(password);
+	public FullInstaClient(@Nullable final String username, @Nullable final String password,
+			final InstaClientConfig instaClientConfig) {
 		this.instaConfig = instaClientConfig;
 		// maps json to Jaxb bean InstaRecordBean
 		config.getClasses().add(JAXBContextResolver.class);
@@ -106,18 +105,8 @@ public class FullInstaClient {
 		 * TODO: the initial authorization request should be made by the users of this client, and probably not  during constructions of this object.
 		 */
 		// get the token and tokenSecret for the user.
-		final Map<String, String> aouthTokenMap = this.authorize(username, password);
+		authorize(username, password);
 
-	}
-
-	public FullInstaClient username(final String username) {
-		this._username = username;
-		return this;
-	}
-
-	public FullInstaClient password(final String password) {
-		this._password = password;
-		return this;
 	}
 
 	private FullInstaClient token(final String token) {
@@ -145,7 +134,7 @@ public class FullInstaClient {
 	}
 
 
-	protected void authorized(@NotNull final String token, @NotNull final String tokenSecret) {
+	private void authorized(@NotNull final String token, @NotNull final String tokenSecret) {
 		token(token);
 		tokenSecret(tokenSecret);
 		// remove the auth filter already registered either in the constructor or by this method.
@@ -196,9 +185,10 @@ public class FullInstaClient {
 	 * @param password An optional password.
 	 * @return A Map containing key 'oauth_token' with oauth user token
 	 *         and a value of token secret under the key 'oauth_token_secret'
-	 * @throws InvalidCredentialsException A RuntimeException is thrown if the user authentication failed
-	 * @throws RuntimeException			Is thrown authorization with oAuth failed, the message will be what Instapaper Full
-	 *                                     api returns in case of an error.
+	 * @throws org.ooloo.insta4j.InvalidCredentialsException
+	 *                          A RuntimeException is thrown if the user authentication failed
+	 * @throws RuntimeException Is thrown authorization with oAuth failed, the message will be what Instapaper Full
+	 *                          api returns in case of an error.
 	 */
 	public Map<String, String> authorize(@NotNull final String username, @NotNull final String password) {
 		final WebResource resource = client
@@ -217,11 +207,10 @@ public class FullInstaClient {
 		final String[] oauth_token_secret = tokens[1].split("=");
 		aouthTokenMap.put(oauth_token[0], oauth_token[1]);
 		aouthTokenMap.put(oauth_token_secret[0], oauth_token_secret[1]);
-		// store user info locally
-		username(username);
-		password(password);
+
 		// signal the client that oAuth token and secret had been recived.
 		authorized(aouthTokenMap.get("oauth_token"), aouthTokenMap.get("oauth_token_secret"));
+
 		return aouthTokenMap;
 	}
 
@@ -372,7 +361,7 @@ public class FullInstaClient {
 	/**
 	 * Stars the specified bookmark.
 	 *
-	 * @param bookmark_id
+	 * @param bookmark_id The identifier for a bookark
 	 * @return The modified bookmark on success.
 	 */
 	public InstaRecordBean starBookmark(final String bookmark_id) {
@@ -389,7 +378,7 @@ public class FullInstaClient {
 	/**
 	 * Un-stars the specified bookmark.
 	 *
-	 * @param bookmark_id
+	 * @param bookmark_id The identifier for a bookark
 	 * @return The modified bookmark on success.
 	 */
 	public InstaRecordBean unstarBookmark(final String bookmark_id) {
@@ -406,7 +395,7 @@ public class FullInstaClient {
 	/**
 	 * Moves the specified bookmark to the Archive.
 	 *
-	 * @param bookmark_id
+	 * @param bookmark_id The identifier for a bookark
 	 * @return The modified bookmark on success.
 	 */
 	public InstaRecordBean archiveBookmark(final String bookmark_id) {
@@ -423,7 +412,7 @@ public class FullInstaClient {
 	/**
 	 * Moves the specified bookmark to the top of the Unread folder.
 	 *
-	 * @param bookmark_id
+	 * @param bookmark_id The identifier for a bookark
 	 * @return The modified bookmark on success.
 	 */
 	public InstaRecordBean unarchiveBookmark(final String bookmark_id) {
@@ -442,7 +431,8 @@ public class FullInstaClient {
 	/**
 	 * Moves the specified bookmark to the top of the Unread folder.
 	 *
-	 * @param bookmark_id
+	 * @param bookmark_id The identifier for a bookark
+	 * @param folder_id   The identifier for a folder
 	 * @return The modified bookmark on success.
 	 */
 	public InstaRecordBean moveBookmark(@NotNull final String bookmark_id, @NotNull final String folder_id) {
@@ -460,8 +450,8 @@ public class FullInstaClient {
 	/**
 	 * Returns the specified bookmark’s processed text-view HTML, which is always text/html encoded as UTF-8.
 	 *
-	 * @param bookmark_id
-	 * @param folder_id
+	 * @param bookmark_id The identifier for a bookark
+	 * @param folder_id   The identifier for a folder
 	 * @return HTML with an HTTP 200 OK status, not the standard API output structures,
 	 *         or an HTTP 400 status code and a standard error structure if anything goes wrong.
 	 */
@@ -496,7 +486,7 @@ public class FullInstaClient {
 	/**
 	 * Creates an organizational folder.
 	 *
-	 * @param title
+	 * @param title The name of the folder.
 	 * @return The newly created folder, or error 1251: “User already has a folder with this title”
 	 *         if the title isn’t unique among this user's folders.
 	 * @throws ResourceExistsException Is thrown if user already has a folder with this title
@@ -608,11 +598,11 @@ public class FullInstaClient {
 	private List<InstaRecordBean> processJsonResponse(final ClientResponse response) {
 		final List<InstaRecordBean> recordBeans = response.getEntity(new GenericType<List<InstaRecordBean>>() {
 		});
-		final List<InstaRecordBean> errorRecords = this.selectRecordsByType(recordBeans, RecordType.ERROR);
+		final List<InstaRecordBean> errorRecords = selectRecordsByType(recordBeans, RecordType.ERROR);
 		// Should only contain zero or 1 codeEnum record.
 		final InstaRecordBean errorRecord = (errorRecords.isEmpty() ? null : errorRecords.iterator().next());
 		if (errorRecord != null) {
-			final int code = (errorRecord != null ? Integer.parseInt(errorRecord.error_code) : response.getStatus());
+			final int code = Integer.parseInt(errorRecord.error_code);
 			final InstaCodes.Code codeEnum = InstaCodes.Code.fromCode(code);
 			final Class<? extends RuntimeException> exceptionClass =
 					codeEnum != null ? codeEnum.getExceptionClass() : null;
@@ -620,29 +610,31 @@ public class FullInstaClient {
 				// {@link InstaCodes.Code#exceptionClass} is null the code is a success code return the records
 				return recordBeans;
 			} else {
-				/**
-				 * raise an exception based on {@link InstaCodes.Code#exceptionClass}
-				 */
-				try {
-					final String message = (errorRecord != null ?
-							String.format("[%s] %s", errorRecord.error_code, errorRecord.message) :
-							codeEnum.getReasonPhrase());
-
-					throw exceptionClass.getConstructor(String.class).newInstance(message);
-				} catch (InstantiationException e) {
-					//ignore
-				} catch (IllegalAccessException e) {
-					//ignore
-				} catch (InvocationTargetException e) {
-					//ignore
-				} catch (NoSuchMethodException e) {
-					//ignore
-				}
-				// failed to construct an exception throw a runtime exception based on the data in the response body.
-				throw new RuntimeException(response.getEntity(String.class));
+				throw raiseRuntimeException(errorRecord, codeEnum, exceptionClass);
 			}
 		} else {
 			return recordBeans;
+		}
+	}
+
+	private RuntimeException raiseRuntimeException(final InstaRecordBean errorRecord, final InstaCodes.Code codeEnum,
+			final Class<? extends RuntimeException> exceptionClass) {
+		/**
+		 * raise an exception based on {@link org.ooloo.insta4j.InstaCodes.Code#exceptionClass}
+		 */
+		try {
+			final String message = (errorRecord != null ?
+					String.format("[%s] %s", errorRecord.error_code, errorRecord.message) : codeEnum.getReasonPhrase());
+			final RuntimeException exception;
+			if (exceptionClass.equals(InstaClientException.class)) {
+				exception = exceptionClass.getConstructor(String.class, InstaCodes.Code.class)
+						.newInstance(message, codeEnum);
+			} else {
+				exception = exceptionClass.getConstructor(String.class).newInstance(message);
+			}
+			return exception;
+		} catch (Exception e) {
+			throw new RuntimeException("The exception does not hava an appropriate constructor", e);
 		}
 	}
 
@@ -663,7 +655,6 @@ public class FullInstaClient {
 		}
 		return recordBeans;
 	}
-
 
 
 }

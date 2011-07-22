@@ -11,7 +11,7 @@ public enum RecordType {
 	META("meta"),
 	USER("user"),
 	ERROR("error");
-	private String _type;
+	private final String _type;
 
 	RecordType(final String type) {
 		_type = type;

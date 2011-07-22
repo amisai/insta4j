@@ -1,5 +1,21 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.ooloo.insta4j;
 
+import com.sun.istack.NotNull;
+import com.sun.istack.Nullable;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -9,7 +25,6 @@ import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
-import javax.security.auth.login.FailedLoginException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -17,12 +32,13 @@ import javax.ws.rs.core.Response;
 /**
  * A java client for Simple Instapaper api @see http://www.instapaper.com/api/simple
  *
+ * @author dzontak@gmail.com
  */
 public class SimpleInstaClient {
 	private static final String INSTAPAPER_BASE_API_URL = "https://www.instapaper.com/api";
-	private String _username;
-	private String _password;
-	private Client client;
+	private final String _username;
+	private final String _password;
+	private final Client client;
 	private final ClientConfig config = new DefaultClientConfig();
 
 	public SimpleInstaClient(final String username, final String password) {
@@ -34,25 +50,26 @@ public class SimpleInstaClient {
 		client.addFilter(new LoggingFilter());
 	}
 
-
-	private ClientResponse _authenticate(final String jsonp) throws FailedLoginException {
-
-		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/authenticate");
-		final MultivaluedMap postData = new MultivaluedMapImpl();
-		if (jsonp != null) {
-			postData.add("jsonp", jsonp);
-		}
-		final ClientResponse response = resource.type(MediaType.APPLICATION_FORM_URLENCODED)
-				.post(ClientResponse.class, postData);
-		return response;
-	}
-
-	public boolean authenticate() throws FailedLoginException {
+	/**
+	 * Authenticates the Instapaper user.
+	 *
+	 * @return True if user's credentials are valid otherwise a {@link InvalidCredentialsException}
+	 * @throws InvalidCredentialsException Is thrown if username or password are invalid.
+	 */
+	public boolean authenticate() {
 		final ClientResponse response = processResponse(this._authenticate(null));
 		return (response.getStatus() == Response.Status.OK.getStatusCode());
 	}
 
-	public String authenticate(final String jsonp) throws FailedLoginException {
+	/**
+	 * Authenticates the Instapaper user.
+	 *
+	 * @param jsonp To receive results as JSON to a specified callback function, pass a valid Javascript function name
+	 *              as the jsonp parameter e.g. jsonp=callbackName.
+	 * @return True if user's credentials are valid otherwise a {@link InvalidCredentialsException}
+	 * @throws InvalidCredentialsException Is thrown if username or password are invalid.
+	 */
+	public String authenticate(final String jsonp) {
 		final ClientResponse response = this._authenticate(jsonp);
 		return response.getEntity(String.class);
 
@@ -75,11 +92,10 @@ public class SimpleInstaClient {
 	 *         X-Instapaper-Title: The saved title for the page, after any auto-detection.
 	 *         if jasonp value was passed in the map will contain a javascript callback function under key 'jasonp'
 	 *         </p>
-	 * @throws javax.security.auth.login.FailedLoginException Is thrown if username or password are invalid.
-	 * @throws RuntimeException	 Is thrown if a code other than 201 is returned with an appropriate error description.
+	 * @throws InvalidCredentialsException Is thrown if username or password are invalid.
+	 * @throws RuntimeException			Is thrown if a code other than 201 is returned with an appropriate error description.
 	 */
-	public MultivaluedMap<String, String> add(final String url, final String title, final String selection)
-			throws FailedLoginException {
+	public MultivaluedMap<String, String> add(final String url, final String title, final String selection) {
 		return processResponse(this._add(url, title, selection, null, null)).getHeaders();
 
 	}
@@ -99,17 +115,29 @@ public class SimpleInstaClient {
 	 * @param jsonp	 To receive results as JSON to a specified callback function, pass a valid Javascript function
 	 *                  name as the jsonp parameter to Add or Authenticate, e.g. jsonp=callbackName.
 	 * @return A json response
-	 * @throws javax.security.auth.login.FailedLoginException Is thrown if username or password are invalid.
-	 * @throws RuntimeException	 Is thrown if a code other than 201 is returned with an appropriate error description.
+	 * @throws InvalidCredentialsException Is thrown if username or password are invalid.
+	 * @throws RuntimeException			Is thrown if a code other than 201 is returned with an appropriate error description.
 	 */
 	public String add(final String url, final String title, final String selection, final String redirect,
-			final String jsonp) throws FailedLoginException {
+			final String jsonp) {
 		return _add(url, title, selection, redirect, jsonp).getEntity(String.class);
 	}
 
 
-	private ClientResponse _add(final String url, final String title, final String selection, final String redirect,
-			final String jsonp) throws FailedLoginException {
+	private ClientResponse _authenticate(@Nullable final String jsonp) {
+
+		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/authenticate");
+		final MultivaluedMap postData = new MultivaluedMapImpl();
+		if (jsonp != null) {
+			postData.add("jsonp", jsonp);
+		}
+		final ClientResponse response = resource.type(MediaType.APPLICATION_FORM_URLENCODED)
+				.post(ClientResponse.class, postData);
+		return response;
+	}
+
+	private ClientResponse _add(@NotNull final String url, @Nullable final String title,
+			@Nullable final String selection, @Nullable final String redirect, @Nullable final String jsonp) {
 
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/add");
 		final MultivaluedMap postData = new MultivaluedMapImpl();
@@ -133,8 +161,7 @@ public class SimpleInstaClient {
 
 	}
 
-
-	private ClientResponse processResponse(final ClientResponse response) throws FailedLoginException {
+	private ClientResponse processResponse(final ClientResponse response) {
 		switch (response.getStatus()) {
 			case 200:
 				return response;
@@ -145,7 +172,7 @@ public class SimpleInstaClient {
 						"Bad request or exceeded the rate limit. Probably missing a required " +
 								"parameter, such as url.");
 			case 403: // Invalid username or password.
-				throw new FailedLoginException("Invalid credentials provided");
+				throw new InvalidCredentialsException("Invalid credentials provided");
 			case 500: // The service encountered an error. Please try again later.
 				throw new RuntimeException("The service encountered an error. Please try again later.");
 			default:

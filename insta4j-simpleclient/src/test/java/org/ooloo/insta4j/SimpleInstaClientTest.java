@@ -22,7 +22,7 @@ public class SimpleInstaClientTest {
 		Assert.assertEquals("instapaperCallback({\"status\":200});", instapaperCallback);
 	}
 
-	@Test(expected = FailedLoginException.class)
+	@Test(expected = InvalidCredentialsException.class)
 	public void authenticateWithInvalidPasswordTest() throws Exception {
 		final SimpleInstaClient simpleClient = new SimpleInstaClient("jinstapaper@gmail.com", "ops");
 		Assert.assertTrue(simpleClient.authenticate());
@@ -66,12 +66,14 @@ public class SimpleInstaClientTest {
 		Assert.assertEquals("instapaperCallback({\"status\":201,\"url\":\"http:\\/\\/toilettwit.info\\/\"});",
 				responce);
 	}
-	
-	@Test(expected = FailedLoginException.class)
-	public void addUrlWithIncorrectCredentialsTest() throws FailedLoginException{
-		final SimpleInstaClient simpleClient = new SimpleInstaClient("jinstapaper@gmail.com","ope");
-		final MultivaluedMap<String,String> response = simpleClient.add("http://toilettwit.info/", "ToileTTwiT", "Adding Toilettwit");
+
+	@Test(expected = InvalidCredentialsException.class)
+	public void addUrlWithIncorrectCredentialsTest() throws FailedLoginException {
+		final SimpleInstaClient simpleClient = new SimpleInstaClient("jinstapaper@gmail.com", "ope");
+		final MultivaluedMap<String, String> response = simpleClient
+				.add("http://toilettwit.info/", "ToileTTwiT", "Adding Toilettwit");
+		Assert.assertNotNull(response);
 	}
-	
-	
+
+
 }

@@ -1,17 +1,13 @@
 package org.ooloo.insta4j.client;
 
 import junit.framework.Assert;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.ietf.jgss.Oid;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.ooloo.insta4j.InvalidCredentialsException;
 import org.ooloo.insta4j.jaxb.InstaRecordBean;
 
 import javax.security.auth.login.FailedLoginException;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,6 +125,7 @@ public class FullInstaClientTest {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
 		final InstaRecordBean instaRecordBean = client
 				.addBookmark("http://news.ycombinator.com/", null, "IDONTEXISTYET", null);
+		Assert.assertNotNull(instaRecordBean);
 	}
 
 	@Test
@@ -187,17 +184,11 @@ public class FullInstaClientTest {
 		final InstaRecordBean recordBean = bookmarks.iterator().next();
 		final String thebookmark = client.getBookmark(recordBean.bookmark_id, folder.folder_id);
 		Assert.assertNotNull(thebookmark);
-
-
 	}
 
 	@Test
 	public void shouldUpdateReadProgress() throws Exception {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
-		final List<InstaRecordBean> folders = FullInstaClient
-				.selectRecordsByType(client.listFolders(), RecordType.FOLDER);
-		Assert.assertNotNull(folders);
-		final InstaRecordBean folder = folders.iterator().next();
 		final List<InstaRecordBean> bookmarks = FullInstaClient
 				.selectRecordsByType(client.listBookmarks(null, null, null), RecordType.BOOKMARK);
 		Assert.assertNotNull(bookmarks);

@@ -10,7 +10,7 @@ import org.ooloo.insta4j.InstaCodes;
  */
 public class InstaClientException extends RuntimeException {
 
-	private InstaCodes.Code _code;
+	private final InstaCodes.Code _code;
 
 	public InstaClientException(final InstaCodes.Code code) {
 		super();
