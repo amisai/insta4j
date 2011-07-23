@@ -121,14 +121,7 @@ public class InstaRecordBean {
 
 
 	public Boolean isNull() throws IllegalAccessException {
-		final Field[] fields = this.getClass().getFields();
-		final InstaRecordBean instance = new InstaRecordBean();
-		for (final Field field : fields) {
-			if (null != field.get(instance)) {
-				return Boolean.FALSE;
-			}
-		}
-		return Boolean.TRUE;
+		return this.toString().equals("[]");
 	}
 
 }
