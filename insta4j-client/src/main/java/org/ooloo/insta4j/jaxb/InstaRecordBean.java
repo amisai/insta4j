@@ -14,6 +14,8 @@
 
 package org.ooloo.insta4j.jaxb;
 
+import org.apache.log4j.Logger;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.lang.reflect.Field;
@@ -26,7 +28,12 @@ import java.lang.reflect.Field;
  */
 @XmlRootElement(name = "instarecord")
 public class InstaRecordBean {
-	// Defines the type of record, user, bookmarks, error, etc.
+
+	private transient static final Logger log = Logger.getLogger(InstaRecordBean.class);
+
+	/**
+	 * Defines the type of record, user, bookmarks, error, etc. see enum {@link org.ooloo.insta4j.client.RecordType}
+	 */
 	@XmlElement
 	public String type;
 
@@ -89,10 +96,8 @@ public class InstaRecordBean {
 	@Override
 	public String toString() {
 
-		final StringBuilder builder = new StringBuilder();
-		final Field[] fields = this.getClass().getFields();
-		builder.append("[");
-		for (final Field field : fields) {
+		final StringBuilder builder = new StringBuilder("[");
+		for (final Field field : this.getClass().getFields()) {
 			try {
 				final Object fieldValue = field.get(this);
 				if (fieldValue != null) {
@@ -100,7 +105,7 @@ public class InstaRecordBean {
 							.append(fieldValue).append("\"").append(",");
 				}
 			} catch (IllegalAccessException e) {
-				// skip
+				log.warn(String.format("Failed to access field %s due to error %s", field.getName(), e.getMessage()));
 			}
 		}
 		builder.append("]");

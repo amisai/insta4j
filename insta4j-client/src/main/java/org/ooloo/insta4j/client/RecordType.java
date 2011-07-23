@@ -15,7 +15,7 @@
 package org.ooloo.insta4j.client;
 
 /**
- * An enumeration for {@link org.ooloo.insta4j.jaxb.InstaRecordBean#type}
+ * An enumeration for {@link org.ooloo.insta4j.jaxb.InstaRecordBean#type} field
  *
  * @author dzontak@gmail.com
  */
