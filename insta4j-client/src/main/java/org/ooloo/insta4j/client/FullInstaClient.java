@@ -542,14 +542,14 @@ public class FullInstaClient {
 	 * @return A list of the account’s user-created folders. This only includes organizational folders and does
 	 *         not include RSS-feed folders or starred-subscription folders, as the implementation of those is changing in the near future
 	 */
-	public List<InstaRecordBean> setFolderOrder(final Map<Integer, Integer> folderPositionMap) {
+	public List<InstaRecordBean> setFolderOrder(final Map<Integer, Long> folderPositionMap) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/folders/set_order");
 		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		final StringBuilder stringBuilder = new StringBuilder();
 		final Set<Integer> folderIds = folderPositionMap.keySet();
 		for (final Integer folderId : folderIds) {
 			stringBuilder
-					.append(Integer.toString(folderId) + ":" + Integer.toString(folderPositionMap.get(folderId)) + ",");
+					.append(Integer.toString(folderId) + ":" + Long.toString(folderPositionMap.get(folderId)) + ",");
 		}
 		final String ordermap = StringUtils.trimTrailingCharacter(stringBuilder.toString(), ',');
 		if (log.isDebugEnabled()) {

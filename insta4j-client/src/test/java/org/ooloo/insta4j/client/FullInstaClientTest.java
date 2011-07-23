@@ -52,7 +52,7 @@ public class FullInstaClientTest {
 		//[{"type":"user","user_id":1615568,"username":"jinstapaper@gmail.com","subscription_is_active":"1"}]
 		Assert.assertNotNull(instaRecordBean);
 		Assert.assertEquals("user", instaRecordBean.type);
-		Assert.assertEquals(true, instaRecordBean.subscription_is_active);
+		Assert.assertEquals(Boolean.TRUE, instaRecordBean.subscription_is_active);
 		Assert.assertEquals("1615568", instaRecordBean.user_id);
 		Assert.assertEquals("jinstapaper@gmail.com", instaRecordBean.username);
 	}
@@ -90,6 +90,7 @@ public class FullInstaClientTest {
 		Assert.assertNotNull(instaRecordBean.starred);
 		Assert.assertNotNull(instaRecordBean.progress);
 		Assert.assertNotNull(instaRecordBean.private_source);
+		instaRecordBean.toString();
 	}
 
 	@Test
@@ -150,7 +151,7 @@ public class FullInstaClientTest {
 		Assert.assertEquals("folder", instaRecordBean.type);
 		Assert.assertNotNull(instaRecordBean.folder_id);
 		Assert.assertNotNull(instaRecordBean.position);
-		Assert.assertEquals(true, instaRecordBean.sync_to_mobile);
+		Assert.assertEquals(Boolean.TRUE, instaRecordBean.sync_to_mobile);
 		// delete the folder
 		Assert.assertTrue(client.deleteFolder(instaRecordBean.folder_id));
 
@@ -208,7 +209,7 @@ public class FullInstaClientTest {
 		Assert.assertNotNull(bookmarks);
 		final InstaRecordBean bookmarkRecord = bookmarks.iterator().next();
 		Assert.assertNotNull(bookmarkRecord);
-		final long progressTimestamp = System.currentTimeMillis();
+		final Long progressTimestamp = System.currentTimeMillis();
 		final InstaRecordBean bookararkRecord = client
 				.updateReadProgress(bookmarkRecord.bookmark_id, 0.5, progressTimestamp);
 		Assert.assertNotNull(bookararkRecord);
@@ -222,17 +223,17 @@ public class FullInstaClientTest {
 		final List<InstaRecordBean> folders = FullInstaClient
 				.selectRecordsByType(client.listFolders(), RecordType.FOLDER);
 		Assert.assertNotNull(folders);
-		final Map<Integer, Integer> folderPositionMap = new HashMap<Integer, Integer>();
+		final Map<Integer, Long> folderPositionMap = new HashMap<Integer, Long>();
 		int count = 0;
 		for (final InstaRecordBean folder : folders) {
-			folderPositionMap.put(Integer.valueOf(folder.folder_id), folders.size() - count);
+			folderPositionMap.put(Integer.valueOf(folder.folder_id), Long.valueOf(folders.size() - count));
 			count++;
 		}
 		final List<InstaRecordBean> reOrderedList = client.setFolderOrder(folderPositionMap);
 		count = 0;
 		for (final InstaRecordBean reOrderFolder : reOrderedList) {
 			log.debug(reOrderFolder);
-			final long position = folderPositionMap.get(Integer.valueOf(reOrderFolder.folder_id));
+			final Long position = folderPositionMap.get(Integer.valueOf(reOrderFolder.folder_id));
 			log.debug("Position in Map of folder " + reOrderFolder.folder_id + " = " + position);
 			Assert.assertEquals(reOrderFolder.position, position);
 			count++;

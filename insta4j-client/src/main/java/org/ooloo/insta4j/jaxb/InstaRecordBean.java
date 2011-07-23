@@ -16,13 +16,13 @@ package org.ooloo.insta4j.jaxb;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.lang.reflect.Field;
 
 /**
  * A jaxb annotated bean which can bind any json record retured by Full Instapaper Api.
- * @href http://www.instapaper.com/api/full
  *
  * @author dzontak@gmail.com
- *
+ * @href http://www.instapaper.com/api/full
  */
 @XmlRootElement(name = "instarecord")
 public class InstaRecordBean {
@@ -37,7 +37,7 @@ public class InstaRecordBean {
 	@XmlElement
 	public String username;
 	@XmlElement
-	public boolean subscription_is_active;
+	public Boolean subscription_is_active;
 
 	// Bookmarks
 	// {"type":"bookmark","bookmark_id":184117327,"url":"http:\/\/toilettwit.info\/","title":"ToileTTwiT",
@@ -52,17 +52,17 @@ public class InstaRecordBean {
 	@XmlElement
 	public String description;
 	@XmlElement
-	public long time;
+	public Long time;
 	@XmlElement
-	public boolean starred;
+	public Boolean starred;
 	@XmlElement
 	public String private_source;
 	@XmlElement
 	public String hash;
 	@XmlElement
-	public double progress;
+	public Double progress;
 	@XmlElement
-	public long progress_timestamp;
+	public Long progress_timestamp;
 	//[{"type":"error", "error_code":1240, "message":"Invalid URL specified"}]
 	@XmlElement
 	public String error_code;
@@ -76,13 +76,54 @@ public class InstaRecordBean {
 	@XmlElement
 	public String folder_id;
 	@XmlElement
-	public boolean sync_to_mobile;
+	public Boolean sync_to_mobile;
 	@XmlElement
-	public long position;
+	public Long position;
 
+	/**
+	 * Returns the object representation in form of json
+	 * e.g. [{"type":"folder","folder_id":1190085,"title":"news","sync_to_mobile":"1","position":1310749195}]
+	 *
+	 * @return
+	 */
 	@Override
 	public String toString() {
-		return "{folder_id:" + folder_id + ",position:" + position + "}";
+
+		final StringBuilder builder = new StringBuilder();
+		final Field[] fields = this.getClass().getFields();
+		builder.append("[");
+		for (final Field field : fields) {
+			try {
+				final Object fieldValue = field.get(this);
+				if (fieldValue != null) {
+					builder.append("\"").append(field.getName()).append("\"").append(":").append("\"")
+							.append(fieldValue).append("\"").append(",");
+				}
+			} catch (IllegalAccessException e) {
+				// skip
+			}
+		}
+		builder.append("]");
+		// surround json by {}
+		if (!builder.toString().equals("[]")) {
+			builder.insert(1, "{");
+			//replace the last , with }
+			builder.replace(builder.length() - 2, builder.length() - 1, "}");
+		}
+		return builder.toString();
+
+	}
+
+
+	public Boolean isNull() throws IllegalAccessException {
+		final Field[] fields = this.getClass().getFields();
+		final InstaRecordBean instance = new InstaRecordBean();
+		for (final Field field : fields) {
+			if (null != field.get(instance)) {
+				return Boolean.FALSE;
+			}
+		}
+		return Boolean.TRUE;
 	}
 
 }
