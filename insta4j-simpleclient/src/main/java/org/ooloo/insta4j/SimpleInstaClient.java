@@ -24,6 +24,7 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import org.apache.log4j.Logger;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -35,19 +36,18 @@ import javax.ws.rs.core.Response;
  * @author dzontak@gmail.com
  */
 public class SimpleInstaClient {
+	private static final Logger log = Logger.getLogger(SimpleInstaClient.class);
 	private static final String INSTAPAPER_BASE_API_URL = "https://www.instapaper.com/api";
-	private final String _username;
-	private final String _password;
 	private final Client client;
 	private final ClientConfig config = new DefaultClientConfig();
 
 	public SimpleInstaClient(final String username, final String password) {
-		this._username = username;
-		this._password = password;
 		client = Client.create(config);
 		// client basic authentication
-		client.addFilter(new HTTPBasicAuthFilter(_username, _password));
-		client.addFilter(new LoggingFilter());
+		client.addFilter(new HTTPBasicAuthFilter(username, password));
+		if (log.isDebugEnabled()) {
+			client.addFilter(new LoggingFilter());
+		}
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class SimpleInstaClient {
 	 * @throws InvalidCredentialsException Is thrown if username or password are invalid.
 	 */
 	public String authenticate(final String jsonp) {
-		final ClientResponse response = this._authenticate(jsonp);
+		final ClientResponse response = processResponse(this._authenticate(jsonp));
 		return response.getEntity(String.class);
 
 	}
@@ -120,7 +120,7 @@ public class SimpleInstaClient {
 	 */
 	public String add(final String url, final String title, final String selection, final String redirect,
 			final String jsonp) {
-		return _add(url, title, selection, redirect, jsonp).getEntity(String.class);
+		return processResponse(_add(url, title, selection, redirect, jsonp)).getEntity(String.class);
 	}
 
 

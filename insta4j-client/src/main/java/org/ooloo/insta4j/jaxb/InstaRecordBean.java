@@ -18,16 +18,16 @@ import org.apache.log4j.Logger;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 
 /**
- * A jaxb annotated bean which can bind any json record retured by Full Instapaper Api.
+ * A jaxb annotated bean which can bind any json record retured by Full Instapaper Api http://www.instapaper.com/api/full
  *
  * @author dzontak@gmail.com
- * @href http://www.instapaper.com/api/full
  */
 @XmlRootElement(name = "instarecord")
-public class InstaRecordBean {
+public class InstaRecordBean implements Serializable {
 
 	private transient static final Logger log = Logger.getLogger(InstaRecordBean.class);
 
@@ -88,10 +88,10 @@ public class InstaRecordBean {
 	public Long position;
 
 	/**
-	 * Returns the object representation in form of json
+	 * Gives the object representation in form of json
 	 * e.g. [{"type":"folder","folder_id":1190085,"title":"news","sync_to_mobile":"1","position":1310749195}]
 	 *
-	 * @return
+	 * @return A json representation of the bean
 	 */
 	@Override
 	public String toString() {

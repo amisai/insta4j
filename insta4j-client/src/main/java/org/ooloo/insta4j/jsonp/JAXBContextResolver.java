@@ -38,7 +38,7 @@ public final class JAXBContextResolver implements ContextResolver<JAXBContext> {
 
 	public JAXBContextResolver() throws Exception {
 		final Class[] cTypes = {InstaRecordBean.class};
-		this.types = new HashSet(Arrays.asList(cTypes));
+		this.types = new HashSet<Class>(Arrays.asList(cTypes));
 		this.context = new JSONJAXBContext(JSONConfiguration.natural().build(), cTypes);
 	}
 
