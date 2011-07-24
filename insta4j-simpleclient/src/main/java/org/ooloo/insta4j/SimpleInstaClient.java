@@ -21,6 +21,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.client.filter.ClientFilter;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
@@ -29,6 +30,7 @@ import org.apache.log4j.Logger;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.util.Stack;
 
 /**
  * A java client for Simple Instapaper api @see http://www.instapaper.com/api/simple
@@ -40,14 +42,32 @@ public class SimpleInstaClient {
 	private static final String INSTAPAPER_BASE_API_URL = "https://www.instapaper.com/api";
 	private final Client client;
 	private final ClientConfig config = new DefaultClientConfig();
+	private final Stack<ClientFilter> filterStack = new Stack<ClientFilter>();
+
 
 	public SimpleInstaClient(final String username, final String password) {
 		client = Client.create(config);
 		// client basic authentication
-		client.addFilter(new HTTPBasicAuthFilter(username, password));
+		final HTTPBasicAuthFilter httpBasicAuthFilter = new HTTPBasicAuthFilter(username, password);
+		client.addFilter(httpBasicAuthFilter);
+		filterStack.push(httpBasicAuthFilter);
 		if (log.isDebugEnabled()) {
 			client.addFilter(new LoggingFilter());
 		}
+	}
+
+
+	/**
+	 * Removes the {@link HTTPBasicAuthFilter} added to {@link Client} at object construction.
+	 * and adds a new instance of the same filter with the new credentials.
+	 *
+	 * @param username The instapaper user
+	 * @param password Optional the Instapaper user password
+	 */
+	public void updateAuthenticationCredentials(final String username, final String password) {
+		final HTTPBasicAuthFilter httpBasicAuthFilter = new HTTPBasicAuthFilter(username, password);
+		client.removeFilter(filterStack.pop());
+		client.addFilter(httpBasicAuthFilter);
 	}
 
 	/**

@@ -22,6 +22,7 @@ import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.client.filter.ClientFilter;
 import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.jersey.client.impl.CopyOnWriteHashMap;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
@@ -58,7 +59,7 @@ public class FullInstaClient {
 	private final InstaClientConfig instaConfig;
 	private String _token = null;
 	private String _tokenSecret = null;
-	private final Stack<OAuthClientFilter> oAuthClientFilterStack = new Stack<OAuthClientFilter>();
+	private final Stack<ClientFilter> filterStack = new Stack<ClientFilter>();
 	private CopyOnWriteHashMap<String, Object> properties;
 
 	public Map<String, Object> getProperties() {
@@ -113,7 +114,7 @@ public class FullInstaClient {
 		 * 		store a reference to the oAuth filter on the stack so that we can easily remove it when
 		 * 	    we are registering a filter with token and token secret after authorization is successfull.
 		 */
-		oAuthClientFilterStack.push(oAuthClientFilter);
+		filterStack.push(oAuthClientFilter);
 
 		/**
 		 * TODO: the initial authorization request should be made by the users of this client, and probably not  during constructions of this object.
@@ -152,7 +153,7 @@ public class FullInstaClient {
 		token(token);
 		tokenSecret(tokenSecret);
 		// remove the auth filter already registered either in the constructor or by this method.
-		client.removeFilter(oAuthClientFilterStack.pop());
+		client.removeFilter(filterStack.pop());
 		// now add a oAuth filter with the token and secret
 		final OAuthClientFilter oAuthClientFilter = new OAuthClientFilter(client.getProviders(), new OAuthParameters()
 				.consumerKey((String) instaConfig.getProperty(InstaClientConfig.PROPERTY_CONSUMER_KEY)).token(_token),
@@ -164,7 +165,7 @@ public class FullInstaClient {
 		 *  push the newly registered filter on the stack so we can track it and unregisterd it before authorizing
 		 *  next time.
 		 */
-		oAuthClientFilterStack.push(oAuthClientFilter);
+		filterStack.push(oAuthClientFilter);
 
 		if (log.isDebugEnabled()) {
 			log.debug(String.format("oAuth authorized token=%s, tokenSecret=%s", token, tokenSecret));

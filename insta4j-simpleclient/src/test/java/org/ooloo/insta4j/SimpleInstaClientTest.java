@@ -16,6 +16,19 @@ public class SimpleInstaClientTest {
 	}
 
 	@Test
+	public void shouldUpdateAuthenticationCredentials() throws Exception {
+		final SimpleInstaClient simpleClient = new SimpleInstaClient("jinstapaper@gmail.com", "closed");
+		try {
+			Assert.assertTrue(simpleClient.authenticate());
+
+		} catch (InvalidCredentialsException ice) {
+			simpleClient.updateAuthenticationCredentials("jinstapaper@gmail.com", "open");
+		}
+		Assert.assertTrue(simpleClient.authenticate());
+
+	}
+
+	@Test
 	public void authenticateValidAccountSecuredWithPasswordWithJsonTest() throws Exception {
 		final SimpleInstaClient simpleClient = new SimpleInstaClient("jinstapaper@gmail.com", "open");
 		final String instapaperCallback = simpleClient.authenticate("instapaperCallback");
