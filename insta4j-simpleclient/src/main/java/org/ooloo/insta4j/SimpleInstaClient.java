@@ -33,7 +33,7 @@ import javax.ws.rs.core.Response;
 import java.util.Stack;
 
 /**
- * A java client for Simple Instapaper api @see http://www.instapaper.com/api/simple
+ * A java client for Simple Instapaper api http://www.instapaper.com/api/simple
  *
  * @author dzontak@gmail.com
  */
@@ -44,6 +44,10 @@ public class SimpleInstaClient {
 	private final ClientConfig config = new DefaultClientConfig();
 	private final Stack<ClientFilter> filterStack = new Stack<ClientFilter>();
 
+
+	public static SimpleInstaClient create(final String username, final String password) {
+		return new SimpleInstaClient(username, password);
+	}
 
 	public SimpleInstaClient(final String username, final String password) {
 		client = Client.create(config);
