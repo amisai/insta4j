@@ -51,7 +51,7 @@ import static java.util.Arrays.asList;
  * @author dzontak@gmail.com
  * @author Sajit Kunnumkal
  */
-public class FullInstaClient {
+public class FullInstaClient implements InstaClient {
 
 	private static final Logger log = Logger.getLogger(FullInstaClient.class);
 	private static final String INSTAPAPER_BASE_API_URL = "https://www.instapaper.com";
@@ -117,7 +117,8 @@ public class FullInstaClient {
 		filterStack.push(oAuthClientFilter);
 
 		/**
-		 * TODO: the initial authorization request should be made by the users of this client, and probably not  during constructions of this object.
+		 * TODO: the initial authorization request should be made by the users of this client, and
+		 * probably not  during constructions of this object.
 		 */
 		// get the token and tokenSecret for the user.
 		authorize(username, password);
@@ -291,8 +292,8 @@ public class FullInstaClient {
 	 * @return The modified bookmark on success.
 	 */
 
-	public InstaRecordBean updateReadProgress(@NotNull final String bookmarkId, @NotNull final double progress,
-			@NotNull final long progressTimestamp) {
+	public InstaRecordBean updateReadProgress(@NotNull final String bookmarkId, @NotNull final Double progress,
+			@NotNull final Long progressTimestamp) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL)
 				.path("/api/1/bookmarks/update_read_progress");
 		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
@@ -362,7 +363,7 @@ public class FullInstaClient {
 	 * @param bookmark_id An empty array on success.
 	 * @return True on sucess
 	 */
-	public boolean deleteBookmark(final String bookmark_id) {
+	public Boolean deleteBookmark(final String bookmark_id) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/bookmarks/delete");
 		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		postData.add("bookmark_id", bookmark_id);
@@ -525,7 +526,7 @@ public class FullInstaClient {
 	 * @return True if the folder was deleted
 	 * @throws ResourceExistsException Is thrown If the folder could not be created with a reason in the message.
 	 */
-	public boolean deleteFolder(@NotNull final String folder_id) {
+	public Boolean deleteFolder(@NotNull final String folder_id) {
 		final WebResource resource = client.resource(INSTAPAPER_BASE_API_URL).path("/api/1/folders/delete");
 		final MultivaluedMap<String, String> postData = new MultivaluedMapImpl();
 		postData.add("folder_id", folder_id);
@@ -670,6 +671,4 @@ public class FullInstaClient {
 		}
 		return recordBeans;
 	}
-
-
 }
