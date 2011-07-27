@@ -37,7 +37,7 @@ import java.util.Stack;
  *
  * @author dzontak@gmail.com
  */
-public class SimpleInstaClient {
+public class SimpleInstaClient implements SimpleClient {
 	private static final Logger log = Logger.getLogger(SimpleInstaClient.class);
 	private static final String INSTAPAPER_BASE_API_URL = "https://www.instapaper.com/api";
 	private final Client client;
