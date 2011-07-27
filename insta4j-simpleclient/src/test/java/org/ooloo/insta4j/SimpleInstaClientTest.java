@@ -87,6 +87,4 @@ public class SimpleInstaClientTest {
 				.add("http://toilettwit.info/", "ToileTTwiT", "Adding Toilettwit");
 		Assert.assertNotNull(response);
 	}
-
-
 }
