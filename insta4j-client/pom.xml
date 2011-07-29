@@ -21,7 +21,7 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.ooloo.insta4j</groupId>
+	<groupId>insta4j</groupId>
 	<artifactId>insta4j-client</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
