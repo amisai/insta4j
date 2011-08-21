@@ -2,11 +2,12 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<artifactId>insta4j</artifactId>
-		<groupId>insta4j</groupId>
+		<groupId>com.idtmatter</groupId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>insta4j-simpleclient</artifactId>
+	<groupId>com.idtmatter</groupId>
 	<packaging>jar</packaging>
 	<name>insta4j-simpleclient</name>
 	<url>https://github.com//dzontak/insta4j</url>
@@ -94,7 +95,7 @@
 			<version>1.8</version>
 		</dependency>
 		<dependency>
-			<groupId>org.ooloo.insta4j</groupId>
+			<groupId>com.idtmatter</groupId>
 			<artifactId>insta4j-core</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>

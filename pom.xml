@@ -20,7 +20,7 @@
 		<version>7</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>insta4j</groupId>
+	<groupId>com.idtmatter</groupId>
 	<artifactId>insta4j</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
