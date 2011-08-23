@@ -39,6 +39,18 @@
 		<connection>scm:git:git://github.com/dzontak/insta4j.git</connection>
 		<developerConnection>scm:git:git://github.com/dzontak/insta4j.git</developerConnection>
 	</scm>
+	<distributionManagement>
+		<repository>
+			<id>oss.sonatype.org</id>
+			<name>sonatype repo</name>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		</repository>
+		<snapshotRepository>
+			<id>oss.sonatype.org</id>
+			<name>sonatype snapshot repo</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 	<developers>
 		<developer>
 			<id>dzontak</id>
