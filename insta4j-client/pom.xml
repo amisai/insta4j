@@ -35,7 +35,7 @@
 		</license>
 	</licenses>
 	<scm>
-		<url>https://github.com//dzontak/insta4j</url>
+		<url>https://github.com/dzontak/insta4j</url>
 		<connection>scm:git:git@github.com:dzontak/insta4j.git</connection>
 		<developerConnection>scm:git:git@github.com:dzontak/insta4j.git</developerConnection>
 	</scm>
