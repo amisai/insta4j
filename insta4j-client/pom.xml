@@ -1,13 +1,27 @@
 <?xml version="1.0"?>
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~   you may not use this file except in compliance with the License.
+  ~   You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~   Unless required by applicable law or agreed to in writing, software
+  ~   distributed under the License is distributed on an "AS IS" BASIS,
+  ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~   See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
 		<artifactId>insta4j</artifactId>
-		<groupId>org.ooloo</groupId>
+		<groupId>com.idtmatter</groupId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.ooloo.insta4j</groupId>
+	<groupId>com.idtmatter</groupId>
 	<artifactId>insta4j-client</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
@@ -23,8 +37,8 @@
 	</licenses>
 	<scm>
 		<url>https://github.com//dzontak/insta4j</url>
-		<connection>scm:git@github.com/dzontak/insta4j.git</connection>
-		<developerConnection>scm:git@github.com/dzontak/insta4j.git</developerConnection>
+			<connection>scm:git:git://github.com/dzontak/insta4j.git</connection>
+		<developerConnection>scm:git:git://github.com/dzontak/insta4j.git</developerConnection>
 	</scm>
 	<developers>
 		<developer>
@@ -46,10 +60,9 @@
 	</issueManagement>
 	<dependencies>
 		<dependency>
-			<groupId>org.ooloo.insta4j</groupId>
+			<groupId>com.idtmatter</groupId>
 			<artifactId>insta4j-core</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
-			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 	<repositories>
@@ -170,15 +183,6 @@
 			</plugin>
 		</plugins>
 	</build>
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-report-plugin</artifactId>
-				<version>2.4.2</version>
-			</plugin>
-		</plugins>
-	</reporting>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

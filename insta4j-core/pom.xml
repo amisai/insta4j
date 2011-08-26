@@ -2,11 +2,11 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<artifactId>insta4j</artifactId>
-		<groupId>org.ooloo</groupId>
+		<groupId>com.idtmatter</groupId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.ooloo.insta4j</groupId>
+	<groupId>com.idtmatter</groupId>
 	<artifactId>insta4j-core</artifactId>
 	<packaging>jar</packaging>
 	<name>insta4j-core</name>
@@ -21,8 +21,8 @@
 	</licenses>
 	<scm>
 		<url>https://github.com//dzontak/insta4j</url>
-		<connection>scm:git@github.com/dzontak/insta4j.git</connection>
-		<developerConnection>scm:git@github.com/dzontak/insta4j.git</developerConnection>
+		<connection>scm:git:git://github.com/dzontak/insta4j.git</connection>
+		<developerConnection>scm:git:git://github.com/dzontak/insta4j.git</developerConnection>
 	</scm>
 	<developers>
 		<developer>
@@ -161,15 +161,6 @@
 			</plugin>
 		</plugins>
 	</build>
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-report-plugin</artifactId>
-				<version>2.4.2</version>
-			</plugin>
-		</plugins>
-	</reporting>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

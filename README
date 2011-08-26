@@ -1,7 +1,0 @@
-1. to resolve some dependencies you will have to modify you ~/.m2/settings.xml
-for instructions see http://maven.apache.org/guides/mini/guide-coping-with-sun-jars.html
-2. to build run mvn install
-
-
-
-
