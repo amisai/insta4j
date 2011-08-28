@@ -17,6 +17,11 @@ package com.idtmatter.insta4j;
 import com.idtmatter.insta4j.client.InstaClientException;
 import com.idtmatter.insta4j.client.ResourceExistsException;
 
+/**
+ *  Encapsuates HTTP Codes returned by instapaper apis.
+ *
+ *  @author dzontak@gmail.com
+ */
 public class InstaCodes {
 
 	/**
