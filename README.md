@@ -10,6 +10,10 @@ Jenkins CI
 ---------------------------
 https://itdmatter.ci.cloudbees.com/job/insta4j/
 
+Maven Snapshot repository
+---------------------------
+https://oss.sonatype.org/content/repositories/snapshots/com/idtmatter/
+
 
 
 
