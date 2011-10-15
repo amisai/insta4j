@@ -17,12 +17,12 @@
 	<parent>
 		<artifactId>insta4j</artifactId>
 		<groupId>com.idtmatter</groupId>
-		<version>1.0.0</version>
+		<version>1.0.1-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.idtmatter</groupId>
 	<artifactId>insta4j-client</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>insta4j-client</name>
 	<description>A Java library for the Instapaper full API</description>
@@ -89,7 +89,7 @@
 		<dependency>
 			<groupId>com.idtmatter</groupId>
 			<artifactId>insta4j-core</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
@@ -124,7 +124,7 @@
 		<dependency>
 			<groupId>com.idtmatter</groupId>
 			<artifactId>insta4j-core</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<repositories>
