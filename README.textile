@@ -3,7 +3,7 @@ h1. Welcome to insta4j
 The java client api for Instapaper "Full":http://www.instapaper.com/api/full and "Simple":http://www.instapaper.com/api/simple
 API which allows third-party applications to add URLs to Instapaper.
 
-h2. Getting started
+h2. Getting sources
 
 Fork the project source code on "Github":https://github.com/dzontak/insta4j
 
@@ -26,6 +26,17 @@ bc. <dependency>
   <artifactId>insta4j-simpleclient</artifactId>
   <version>1.0.0</version>
 </dependency>
+
+h2. Getting Started
+
+**Note:** Most of the Full API’s methods require the authenticating user to have a "Subscription account":http://www.instapaper.com/subscription
+After you have subscribed you will be given 2 oauth codes a consumer key and secret
+Create a file insta4j.properties with the following properties substituting your keys and add them to the classpath of you application
+bc. oauth.consumer.key=4bOs6ZpYosPYwZnUcSaWa9TH4vAHQ1SRzKaic422Tk4Ax6GWQv
+bc. oauth.consumer.secret=nk5LqpiquzhQoHoAruTZ3tempCU1s4pttR83xvBIDFoMRpWhMMX
+
+The api is very easy to use and the best place to start is by looking at the unit tests.
+There is an intergration test for each of the methods provided by the instapaper apis
 
 h2. Reporting bugs
 
