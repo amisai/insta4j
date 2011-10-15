@@ -56,7 +56,7 @@ public interface InstaClientConfig extends FeaturesAndProperties {
 	 * Property if enabled will tell the InstaClient to add
 	 * {@link com.sun.jersey.api.client.filter.LoggingFilter} to {@link com.sun.jersey.api.client.Client}
 	 */
-	public static final String PROPERTY_LOG_HTTP_TRAFFIC = "org.ooloo.org.ooloo.insta4j.log.http.traffic";
+	public static final String PROPERTY_LOG_HTTP_TRAFFIC = "insta4j.log.http.traffic";
 
 
 	/**

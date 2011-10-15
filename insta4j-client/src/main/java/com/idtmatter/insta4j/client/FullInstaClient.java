@@ -89,7 +89,7 @@ public class FullInstaClient implements InstaClient {
 	 * @param username		  Instapaper username
 	 * @param password		  Optional Instapaper password
 	 * @param instaClientConfig The client configuration.
-	 * @throws org.ooloo.insta4j.InvalidCredentialsException
+	 * @throws com.idtmatter.insta4j.InvalidCredentialsException
 	 *          If username and password are not valid.
 	 */
 	public FullInstaClient(@Nullable final String username, @Nullable final String password,
@@ -201,7 +201,7 @@ public class FullInstaClient implements InstaClient {
 	 * @param password An optional password.
 	 * @return A Map containing key 'oauth_token' with oauth user token
 	 *         and a value of token secret under the key 'oauth_token_secret'
-	 * @throws org.ooloo.insta4j.InvalidCredentialsException
+	 * @throws com.idtmatter.insta4j.InvalidCredentialsException
 	 *                          A RuntimeException is thrown if the user authentication failed
 	 * @throws RuntimeException Is thrown authorization with oAuth failed, the message will be what Instapaper Full
 	 *                          api returns in case of an error.
