@@ -1,7 +1,8 @@
 h1. Welcome to insta4j
 
-The java client api for Instapaper Full and Simple api's makes it easy to communicate with instapaper restfull services.
-For more information take a look at instapaper documenation
+The java client api for Instapaper Full and Simple api's
+The Developer API allows third-party applications to add URLs to Instapaper & more.
+For more information visit instapaper documenation
 "Simple Developer API":http://www.instapaper.com/api/simple:
 "Full Developer API":http://www.instapaper.com/api/simple:
 
