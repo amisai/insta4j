@@ -23,7 +23,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.idtmatter</groupId>
 	<artifactId>insta4j-client</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>insta4j-client</name>
 	<description>A Java library for the Instapaper full API</description>
