@@ -64,34 +64,13 @@
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-json</artifactId>
+			<artifactId>jersey-core</artifactId>
 			<version>1.8</version>
 		</dependency>
 		<dependency>
-			<groupId>com.sun.jersey.jersey-test-framework</groupId>
-			<artifactId>jersey-test-framework-core</artifactId>
-			<version>1.8</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.jersey.contribs</groupId>
-			<artifactId>jersey-apache-client</artifactId>
-			<version>1.8</version>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.jersey.contribs</groupId>
-			<artifactId>jersey-spring</artifactId>
-			<version>1.8</version>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.jersey.contribs.jersey-oauth</groupId>
-			<artifactId>oauth-signature</artifactId>
-			<version>1.8</version>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.jersey.contribs.jersey-oauth</groupId>
-			<artifactId>oauth-client</artifactId>
-			<version>1.8</version>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-impl</artifactId>
+			<version>2.2.3-1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.idtmatter</groupId>
