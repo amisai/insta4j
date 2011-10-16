@@ -4,15 +4,15 @@ The java client api for Instapaper "Full":http://www.instapaper.com/api/full and
 
 h2. Getting sources
 
-1. Fork the project source code on "Github":https://github.com/dzontak/insta4j
+* Fork the project source code on "Github":https://github.com/dzontak/insta4j
 
 bc. git clone git@github.com:dzontak/insta4j.git
 
-2. Build the client with maven
+*  Build the client with maven
 
 bc. mvn install
 
-3. Add insta4j-client and insta4j-simpleclient as dependencies to your pom
+*  Add insta4j-client and insta4j-simpleclient as dependencies to your pom
 
 bc. <dependency>
   <groupId>com.idtmatter</groupId>
