@@ -35,8 +35,8 @@ Create a file insta4j.properties with the following properties substituting your
 bc. oauth.consumer.key=4bOs6ZpYosPYwZnUcSaWa9TH4vAHQ1SRzKaic422Tk4Ax6GWQv
 bc. oauth.consumer.secret=nk5LqpiquzhQoHoAruTZ3tempCU1s4pttR83xvBIDFoMRpWhMMX
 
-The api is very easy to use and the best place to start is by looking at the unit tests.
-There is an intergration test for each of the methods provided by the instapaper apis
+* The api is very easy to use and the best place to start is by looking at the unit tests.
+* There is an intergration test for each of the methods provided by the instapaper apis
 
 h2. Reporting bugs
 
