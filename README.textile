@@ -31,8 +31,10 @@ h2. Getting Started
 
 **Note:** Most of the Full API’s methods require the authenticating user to have a "Subscription account":http://www.instapaper.com/subscription
 After you have subscribed you will be given 2 oauth codes a consumer key and secret
-Create a file insta4j.properties with the following properties substituting your keys and add them to the classpath of you application
+Create a file **insta4j.properties** with the following properties substituting your keys and add them to the classpath of you application
+
 bc. oauth.consumer.key=4bOs6ZpYosPYwZnUcSaWa9TH4vAHQ1SRzKaic422Tk4Ax6GWQv
+
 bc. oauth.consumer.secret=nk5LqpiquzhQoHoAruTZ3tempCU1s4pttR83xvBIDFoMRpWhMMX
 
 The api is very easy to use and the best place to start is by looking at the unit tests.
