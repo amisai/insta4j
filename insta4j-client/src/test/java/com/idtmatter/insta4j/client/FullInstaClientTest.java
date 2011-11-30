@@ -81,7 +81,7 @@ public class FullInstaClientTest {
 		final InstaRecordBean instaRecordBean = client.addBookmark("http://news.ycombinator.com/", null, null, null);
 		Assert.assertNotNull(instaRecordBean);
 		Assert.assertEquals("bookmark", instaRecordBean.type);
-		Assert.assertEquals("Hacker News", instaRecordBean.title);
+		Assert.assertEquals("http://news.ycombinator.com/", instaRecordBean.title);
 		Assert.assertEquals("http://news.ycombinator.com/", instaRecordBean.url);
 		Assert.assertEquals("", instaRecordBean.description);
 		Assert.assertNotNull(instaRecordBean.hash);
