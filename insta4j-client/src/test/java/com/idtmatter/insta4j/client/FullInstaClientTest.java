@@ -18,6 +18,7 @@ import com.idtmatter.insta4j.jaxb.InstaRecordBean;
 import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Ignore;
 import org.junit.Test;
 import com.idtmatter.insta4j.InvalidCredentialsException;
 
@@ -75,14 +76,18 @@ public class FullInstaClientTest {
 		Assert.assertNotNull(authorize.get("oauth_token_secret"));
 	}
 
+	/**
+	 * This test is breaking often because the client response varies ..Changing from news.ycombinator.com to google.com
+	 * @throws Exception
+	 */
 	@Test
 	public void shouldAddBookmark() throws Exception {
 		final FullInstaClient client = FullInstaClient.create("jinstapaper@gmail.com", "open");
-		final InstaRecordBean instaRecordBean = client.addBookmark("http://news.ycombinator.com/", null, null, null);
+		final InstaRecordBean instaRecordBean = client.addBookmark("http://google.com/", null, null, null);
 		Assert.assertNotNull(instaRecordBean);
 		Assert.assertEquals("bookmark", instaRecordBean.type);
-		Assert.assertEquals("http://news.ycombinator.com/", instaRecordBean.title);
-		Assert.assertEquals("http://news.ycombinator.com/", instaRecordBean.url);
+		Assert.assertEquals("Google", instaRecordBean.title);
+		Assert.assertEquals("http://www.google.com/", instaRecordBean.url);
 		Assert.assertEquals("", instaRecordBean.description);
 		Assert.assertNotNull(instaRecordBean.hash);
 		Assert.assertNotNull(instaRecordBean.progress_timestamp);
@@ -92,6 +97,7 @@ public class FullInstaClientTest {
 		Assert.assertNotNull(instaRecordBean.private_source);
 		instaRecordBean.toString();
 	}
+
 
 	@Test
 	public void shouldAddBookmarkWithCustomTitle() throws Exception {
