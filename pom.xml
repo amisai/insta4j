@@ -21,7 +21,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.idtmatter</groupId>
 	<artifactId>insta4j</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>insta4j</name>
 	<description>A Java library for the Instapaper Simple and Full API</description>

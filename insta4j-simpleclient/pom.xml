@@ -2,7 +2,7 @@
 	<parent>
 		<artifactId>insta4j</artifactId>
 		<groupId>com.idtmatter</groupId>
-		<version>1.0.1</version>
+		<version>1.0.2-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>insta4j-simpleclient</artifactId>
@@ -75,7 +75,7 @@
 		<dependency>
 			<groupId>com.idtmatter</groupId>
 			<artifactId>insta4j-core</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.2-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<repositories>
