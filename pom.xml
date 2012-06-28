@@ -13,19 +13,19 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<parent>
+	<!--parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
 		<version>7</version>
-	</parent>
+	</parent-->
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.idtmatter</groupId>
+	<groupId>org.okiju</groupId>
 	<artifactId>insta4j</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.3</version>
 	<packaging>pom</packaging>
 	<name>insta4j</name>
-	<description>A Java library for the Instapaper Simple and Full API</description>
-	<url>http://dzontak.github.com/insta4j/</url>
+	<description>A Java library for the Instapaper Simple and Full API, forked from inst4j: http://dzontak.github.com/insta4j/ </description>
+	<url>http://amisai.github.com/insta4j/</url>
 	<licenses>
 		<license>
 			<name>Apache License 2.0</name>
@@ -34,9 +34,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<url>https://github.com/dzontak/insta4j</url>
-		<connection>scm:git:git@github.com:dzontak/insta4j.git</connection>
-		<developerConnection>scm:git:git@github.com:dzontak/insta4j.git</developerConnection>
+		<url>https://github.com/amisai/insta4j</url>
+		<connection>scm:git:git@github.com:amisai/insta4j.git</connection>
+		<developerConnection>scm:git:git@github.com:amisai/insta4j.git</developerConnection>
 	</scm>
 	<distributionManagement>
 		<repository>
@@ -52,16 +52,13 @@
 	</distributionManagement>
 	<developers>
 		<developer>
-			<id>dzontak</id>
-			<name>Denis Zontak</name>
-			<email>dzontak@gmail.com</email>
-			<url>http://toilettwit.info</url>
+			<id>amisai</id>
 			<roles>
 				<role>lead</role>
 				<role>architect</role>
 				<role>developer</role>
 			</roles>
-			<timezone>-1</timezone>
+			<timezone>+1</timezone>
 		</developer>
 	</developers>
 	<modules>

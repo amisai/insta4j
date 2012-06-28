@@ -14,12 +14,14 @@
 
 package com.idtmatter.insta4j.jaxb;
 
-import org.apache.log4j.Logger;
+import java.io.Serializable;
+import java.lang.reflect.Field;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
-import java.lang.reflect.Field;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A jaxb annotated bean which can bind any json record retured by Full Instapaper Api http://www.instapaper.com/api/full
@@ -29,7 +31,7 @@ import java.lang.reflect.Field;
 @XmlRootElement(name = "instarecord")
 public class InstaRecordBean implements Serializable {
 
-	private transient static final Logger log = Logger.getLogger(InstaRecordBean.class);
+	private transient static final Logger log = LoggerFactory.getLogger(InstaRecordBean.class);
 
 	/**
 	 * Defines the type of record, user, bookmarks, error, etc. see enum {@link com.idtmatter.insta4j.client.RecordType}

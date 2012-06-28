@@ -14,6 +14,15 @@
 
 package com.idtmatter.insta4j;
 
+import java.util.Stack;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
 import com.sun.jersey.api.client.Client;
@@ -25,12 +34,6 @@ import com.sun.jersey.api.client.filter.ClientFilter;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import org.apache.log4j.Logger;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import java.util.Stack;
 
 /**
  * A java client for Simple Instapaper api http://www.instapaper.com/api/simple
@@ -38,7 +41,7 @@ import java.util.Stack;
  * @author dzontak@gmail.com
  */
 public class SimpleInstaClient implements SimpleClient {
-	private static final Logger log = Logger.getLogger(SimpleInstaClient.class);
+	private static final Logger log = LoggerFactory.getLogger(SimpleInstaClient.class);
 	private static final String INSTAPAPER_BASE_API_URL = "https://www.instapaper.com/api";
 	private final Client client;
 	private final ClientConfig config = new DefaultClientConfig();

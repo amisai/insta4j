@@ -1,16 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<artifactId>insta4j</artifactId>
-		<groupId>com.idtmatter</groupId>
-		<version>1.0.2-SNAPSHOT</version>
+		<groupId>org.okiju</groupId>
+		<version>1.0.3</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.idtmatter</groupId>
+	<groupId>org.okiju</groupId>
 	<artifactId>insta4j-core</artifactId>
 	<packaging>jar</packaging>
 	<name>insta4j-core</name>
 	<description>A Java library for the Instapaper full API</description>
-	<url>http://dzontak.github.com/insta4j</url>
+	<url>http://amisai.github.com/insta4j</url>
 	<licenses>
 		<license>
 			<name>Apache License 2.0</name>
@@ -18,29 +18,26 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<jersey.version>1.11</jersey.version>
+	</properties>
 	<scm>
-		<url>https://github.com/dzontak/insta4j</url>
-		<connection>scm:git:git@github.com:dzontak/insta4j.git</connection>
-		<developerConnection>scm:git:git@github.com:dzontak/insta4j.git</developerConnection>
+		<url>https://github.com/amisai/insta4j</url>
+		<connection>scm:git:git@github.com:amisai/insta4j.git</connection>
+		<developerConnection>scm:git:git@github.com:amisai/insta4j.git</developerConnection>
 	</scm>
 	<developers>
 		<developer>
-			<id>dzontak</id>
-			<name>Denis Zontak</name>
-			<email>dzontak@gmail.com</email>
-			<url>http://toilettwit.info</url>
-			<roles>
-				<role>lead</role>
+			<id>amisai</id>
+                        <roles>
 				<role>architect</role>
 				<role>developer</role>
 			</roles>
-			<timezone>-1</timezone>
+			<timezone>+1</timezone>
 		</developer>
 	</developers>
-	<issueManagement>
-		<system>Github</system>
-		<url>https://github.com/dzontak/jinstapaper/issues</url>
-	</issueManagement>
 	<dependencies>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -53,16 +50,9 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.8.1</version>
+                        <scope>test</scope>
 		</dependency>
 	</dependencies>
-	<repositories>
-		<repository>
-			<id>maven2-repository.java.net</id>
-			<name>Java.net Repository for Maven</name>
-			<url>http://download.java.net/maven/2/</url>
-			<layout>default</layout>
-		</repository>
-	</repositories>
 	<build>
 		<defaultGoal>install</defaultGoal>
 		<testResources>
@@ -173,8 +163,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-	</properties>
 </project>

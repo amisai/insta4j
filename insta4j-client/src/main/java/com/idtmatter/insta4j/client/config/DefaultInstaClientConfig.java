@@ -14,13 +14,13 @@
 
 package com.idtmatter.insta4j.client.config;
 
-import org.springframework.util.ResourceUtils;
-
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
+
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 
 public class DefaultInstaClientConfig implements InstaClientConfig {
 
@@ -33,42 +33,32 @@ public class DefaultInstaClientConfig implements InstaClientConfig {
 	}
 
 	private void init() {
-		final Properties PROPERTIES = new Properties();
-		FileInputStream st = null;
+	    Configuration conf = null;
 		try {
-			//TODO: Avoid using ResourceUtils.
-			st = new FileInputStream(ResourceUtils.getFile("classpath:" + PROPERTY_JINSTAPAPER_PROPERTY_NAME));
-			PROPERTIES.load(st);
-		} catch (IOException e) {
-			// ignore
-		} finally {
-			if (st != null) {
-				try {
-					st.close();
-				} catch (IOException ex) {
-					// ignore
-				}
-			}
+		    conf = new PropertiesConfiguration(PROPERTY_JINSTAPAPER_PROPERTY_NAME);
+		    
+		} catch (ConfigurationException e) {
 		}
 
 		for (final String name : new String[]{PROPERTY_CONSUMER_KEY, PROPERTY_CONSUMER_SECRET}) {
 			final String value = System.getProperty(name);
 			if (value != null) {
-				PROPERTIES.setProperty(name, value);
+				conf.setProperty(name, value);
 			}
 		}
 
-		if (PROPERTIES.getProperty(PROPERTY_CONSUMER_KEY) == null ||
-				PROPERTIES.getProperty(PROPERTY_CONSUMER_SECRET) == null) {
+		if (conf.getProperty(PROPERTY_CONSUMER_KEY) == null ||
+				conf.getProperty(PROPERTY_CONSUMER_SECRET) == null) {
 			throw new IllegalArgumentException(String.format("No consumerKey and/or consumerSecret found in %s file. " +
 					"You have to provide these as system properties.", PROPERTY_JINSTAPAPER_PROPERTY_NAME));
 		}
 
-		for (final Map.Entry<Object, Object> entry : PROPERTIES.entrySet()) {
-			properties.put((String) entry.getKey(), entry.getValue());
-
+		Iterator it = conf.getKeys();
+		while (it.hasNext()) {
+		    String key = (String)it.next();
+		    String value = conf.getString(key);
+		    properties.put(key, value);
 		}
-
 	}
 
 	/**
